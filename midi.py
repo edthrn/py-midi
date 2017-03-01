@@ -192,12 +192,12 @@ class MidiConnector():
 		if not isOmni:
 			status = bytes([message._status])
 			msg = [status, data1, data2]
-			for i in range(3):
-				self.connector.write(msg[i])
+			for byte in msg:
+				self.connector.write(byte)
 
 		else: # We send the MIDI message on every channels.
-			for j in range(16):
-				status = bytes([message._status & j])
+			for i in range(16):
+				status = bytes([message._status & i])
 				msg = [status, data1, data2]
-				for i in range(3):
-					self.connector.write(msg[i])
+				for byte in msg:
+					self.connector.write(byte)
