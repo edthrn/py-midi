@@ -167,9 +167,8 @@ class MidiConnector():
 			byte = data
 			if message[1] is not None:
 				status = message[0] >> 4 
-				if status == 12 or status == 13:
-				# either a PC message, or Channel Aftertouch. They carry only 2 bytes of data, not 3.
-				break
+				if status == 12 or status == 13: # either a PC message or Channel Aftertouch. They carry only 2 bytes, not 3.
+					break
 
 		if isOmni or channel == message[0] + 1 :
 			return Message(None, status_byte=message[0], data_byte1=message[1], data_byte2=message[2])
