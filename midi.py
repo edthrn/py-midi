@@ -161,10 +161,13 @@ class MidiConnector():
 	def read(self, isOmni=True, *channel):
 
 		message = [None, None, None]
-		for i in range(3):
+
+		for byte in message:
 			data = int.from_bytes(self.connector.read(1), 'big')
-			message[i] = data
-			if message[1] is not None and (message[0] >> 4 == 12 or message[0] >> 4 == 13):
+			byte = data
+			if message[1] is not None:
+				status = message[0] >> 4 
+				if status == 12 or status == 13:
 				# either a PC message, or Channel Aftertouch. They carry only 2 bytes of data, not 3.
 				break
 
