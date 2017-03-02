@@ -4,19 +4,19 @@ from midiTypeMessage import *
 class Message():
 	"""kwargs when MIDI IN, args when MIDI OUT"""
 
-	def __init__(self, channel, *args, **kwargs):
+	def __init__(self, *args, **kwargs):
 
 		self.type = None
 		self.channel = None
 		self._type = None # 4 bits reprensenting the message type
-		self._status = None # 1st byte
+		self._status = None # 1st byte (_type + channel)
 		self._data1 = None # 2nd byte
 		self._data2 = None # 3rd byte
 
 		if kwargs:
 			for key in kwargs.keys():
 				if key not in ['status_byte', 'data_byte1', 'data_byte2']:
-					raise TypeError("{} argument unkown. Keywords arguments must be 'status_byte', 'data_byte1' and"
+					raise TypeError("{} argument unknown. Keywords arguments must be 'status_byte', 'data_byte1' and"
 									"data_byte2".format(key))
 
 			self._data1 = kwargs['data_byte1']
@@ -42,11 +42,20 @@ class Message():
 				self.type = PitchWheel(self._data1, self._data2)
 			else:
 				raise TypeError('Cannot build a MIDI message. Please verify value of status byte (must be greater or equal'
-								'than 127 (0111 1111) and less or equal than 255 (1111 1111)')
+								'than 128 (1000 0000) and less or equal than 255 (1111 1111)')
 
 		elif args:
-			if 1 <= channel <= 16:
-				self.channel = channel
+			if len(args) != 2:
+				raise TypeError('Message.__init__() takes 2 positional arguments ({} given)'.format(len(args)))
+			else:
+				channel = args[1]
+				if not isinstance(channel, int):
+					raise TypeError('2nd positional argument (channel) must be an integer ({} given)'.format(str(type(channel))))
+				elif 1 <= channel <= 16:
+					self.channel = channel
+				else:
+					raise ValueError('2nd argument (channel) is out of range (must be set from 1 to 16, {} given).'.format(channel))
+
 				self.type = args[0]
 				if isinstance(self.type, NoteOff):
 					self._type = 8
@@ -74,25 +83,18 @@ class Message():
 					self._type = 14
 					self._data1 = self.type.lsbyte
 					self._data2 = self.type.msbyte
-				elif len(args) == 1:
-					raise TypeError('2nd given positional argument should not be {}. Must be NoteOff, NoteOn, PolyphonicAftertouch,'
-									' ChanelAftertouch, ControlChange, ProgramChange or PitchWheel'.format(str(type((self.type)))))
 				else:
-					raise TypeError('Message().__init__ takes 2 positional arguments max. {} were given.'.format(len(args)+1))
+					raise TypeError('1st positional argument should not be type {}. Must be NoteOff, NoteOn, PolyphonicAftertouch,'
+									' ChanelAftertouch, ControlChange, ProgramChange or PitchWheel'.format(str(type((self.type)))))
 				
 				self._status = (self._type << 4) + self.channel
 			
-			elif not isinstance(channel, int):
-				raise TypeError('1st positional argument (channel) must be an integer.')
-			else:
-				raise ValueError('Channel out of range (must be set from 1 to 16, {} given).'.format(channel))
 		else:
-			raise ValueError('Missing argument to build a Message object. Only 1 given, minimum 2 required.')
-
+			raise TypeError('Missing argument to build a Message object (2 positional arguments required)')
 
 
 	def __repr__(self):
-		return "Channel: {}\n{}".format(self.channel, self.type)
+		return "Channel: {}{}".format(self.channel, self.type)
 
 	def _get_velocity(self):
 		return self.type.velocity
@@ -153,15 +155,29 @@ class Message():
 
 class MidiConnector():
 
-	def __init__(self, port, baudrate=31250):
+	def __init__(self, port, baudrate=31250, timeout=None):
+
+		if timeout:
+			if not isinstance(timeout,int) or not isinstance(timeout, float)
+				raise TypeError('Spcecified timeout must be interger or float ({} given)'.format(type(timeout)))
+
+		self.timeout = timeout
 		self.baudrate = baudrate
 		self.port = port
-		self.connector = serial.Serial(self.port, self.baudrate)
+		self.connector = serial.Serial(port=self.port, baudrate=self.baudrate, timeout=self.timeout)
 
-	def read(self, isOmni=True, *channel):
+	def read(self, *channel):
+
+		if not channel:
+			omni = True
+		elif not isinstance(channel, int):
+			raise TypeError('Optional argument (channel) must be an integer.')
+		elif not 1 <= channel <= 16:
+			raise ValueError('Specified channel out of range. Must be set from 1 to 16 ({} given).'.format(channel))
+		else:
+			omni = False
 
 		message = [None, None, None]
-
 		for byte in message:
 			data = int.from_bytes(self.connector.read(1), 'big')
 			byte = data
@@ -170,20 +186,13 @@ class MidiConnector():
 				if status == 12 or status == 13: # either a PC message or Channel Aftertouch. They carry only 2 bytes, not 3.
 					break
 
-		if isOmni or channel == message[0] + 1 :
-			return Message(None, status_byte=message[0], data_byte1=message[1], data_byte2=message[2])
-		elif not isOmni and channel:
-			if not 1 <= channel <= 16:
-				raise ValueError('Specified channel out of range. Must be set from 1 to 16 ({} given).'.format(channel))
-			elif not isinstance(channel, int):
-				raise TypeError('Last positionnal argument (channel) must be an integer.')
-		elif not isOmni and not channel:
-			raise ValueError('When not in "Omni" mode, you need to specifify which channel to listen on (1 to 16).')
+		if omni or channel == message[0] + 1:
+			return Message(status_byte=message[0], data_byte1=message[1], data_byte2=message[2])
 		else:
 			pass
+		
 
-
-	def write(self, message, isOmni=False):
+	def write(self, message, omni=False):
 
 		if not isinstance(message, Message):
 			raise TypeError("Argument 'message' must be type Message ({} given).".format(str(type(message))))
@@ -191,13 +200,13 @@ class MidiConnector():
 		data1 = bytes([message._data1])
 		data2 = bytes([message._data2])
 
-		if not isOmni:
+		if not omni:
 			status = bytes([message._status])
 			msg = [status, data1, data2]
 			for byte in msg:
 				self.connector.write(byte)
 
-		else: # We send the MIDI message on every channels.
+		else: # send MIDI message on every channels
 			for i in range(16):
 				status = bytes([message._status & i])
 				msg = [status, data1, data2]
