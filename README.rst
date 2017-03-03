@@ -69,7 +69,8 @@ Super easy. Now I just have to read through it::
 Note that this will block until a MIDI message is received (thus it can block for ever if your loop is not properly set up)
 To set a timeout, you need to specify it when building the connector::
 
-	cnxWithTimeout = midi.Connector('path/to/serial/port', timeout=10) # will block for max 10 sec when reading, or until a message is received 
+	cnxWithTimeout = midi.Connector('path/to/serial/port', timeout=10) 
+	# will block for max 10 sec when reading, or until a message is received 
 
 You can also specify a channel for listening::
 

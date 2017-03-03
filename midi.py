@@ -2,9 +2,37 @@ import serial
 from midiTypeMessage import *
 		
 class Message():
-	"""kwargs when MIDI IN, args when MIDI OUT"""
+	"""This class represent a complete MIDI message.
+
+	Attributes:
+	- type: the type of message (ControlChange, NoteOn, NoteOff, ProgramChange, etc...)
+	- channel: the channel used for sending the message, or for receiving it.
+
+	It has no other available methods than __init__. For building a MIDI message, there are two solutions,
+	but one of them (passing keywords parameters) must be used only by the package, when reading MIDI IN messages.
+
+	kwargs when MIDI IN, args when MIDI OUT"""
 
 	def __init__(self, *args, **kwargs):
+		"""
+		Build the MIDI message.
+		
+		Warning: keywords arguments *MUST ONLY BE USED* by the package, *NOT* by programmers. 
+		
+		Programmers using this constructor must use positional arguments.
+		Positionnal arguments must be:
+			1) Type of message (ProgramChange, NoteOff, etc...). See midiTypeMessages.py
+			2) Channel (int from 1 to 16). 
+
+		Be prepared to raise TypeError if you don't respect this order or the required types, or if you want
+		to name the arguments.
+
+		Examples: 
+		* msg = Message(NoteOff(52, 8), 15) # This is good. It works
+		* Passing any other type of arguments will raise a TypeError
+		* Passing (25) as 2nd arg (channel) will raise a ValueError (channels go from 1 to 16)
+		* msg = Message(channel=15, type=NoteOff(52,8)) # This will also raise a TypeError (unknown keywords argument)
+		"""
 
 		self.type = None
 		self.channel = None
