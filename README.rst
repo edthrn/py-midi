@@ -1,12 +1,22 @@
-Written by Edouard Theron 
-February 2017
+======================================================
+PY3-MIDI PACKAGE
+======================================================
 
-ed@edtheron.me
+*Created by Edouard Theron* 
+ed [at] edtheron [dot] me
+*February 2017*
+
+**Published under GNU License**
+
+.. sectum::
+.. contents:: Table of Contents
+
 
 Package for using MIDI standard with Python3
 
 
 1) PURPOSE
+~~~~~~~~~~
    This Python3 library has been made in order to communicate easily with any MIDI devices. The only requirement is to have a serial
    interface on your computer. It's on this interface that you must connect MIDI cables to establish a communication between your
    machine and the MIDI devices.
@@ -18,24 +28,27 @@ Package for using MIDI standard with Python3
 
    This library is able to deal with any kind of MIDI messages (except SysEx for the moment, coming soon), on any of the 16 possible channels.
 
-   For more details on the MIDI standard, see Wikipedia_ MIDI page.
-   .. _Wikipedia: https://en.wikipedia.org/wiki/MIDI
+   For more details on the MIDI standard, see Wikipedia MIDI page https://en.wikipedia.org/wiki/MIDI
 
 2) CONTENT
+~~~~~~~~~~
+	Some Content here.
+	
 3) USECASES
-	3.1 Reading MIDI messages (via MIDI IN device)
+~~~~~~~~~~
+	A) Reading MIDI messages (via MIDI IN device)
 
-		First, I need to set up a connector object. It requires at least one argument: the port used for the serie interface::
+	First, I need to set up a connector object. It requires at least one argument: the port used for the serie interface::
 
 		cnx = midi.Connector('path/to/serial/port')
 
-		Super easy... Now I just have to read through it::
+		Super easy. Now I just have to read through it::
 
-		msg_in = cnx.read() # returns any MIDI messages received
+		msgIn = cnx.read() # returns any MIDI messages received
 		or::
-		msg_in_channel8 = cnx.read(8) # returns MIDI messages received on channel 8 only, and ignores the rest
+		msgInChannel8 = cnx.read(8) # returns MIDI messages received on channel 8 only, and ignores the rest
 
-	3.2 Sending MIDI messages (via MIDI OUT device)
+	B) Sending MIDI messages (via MIDI OUT device)
 
 		First you need to create the type of message you need to send (either a Control Change, a Note On, etc...)
 
@@ -44,15 +57,9 @@ Package for using MIDI standard with Python3
 		cc = midi.ControlChange(12, 127)
 
 		I want to send the message on channel 15::
-
 		channel = 15
-
 		Now I have everything I need to build up a MIDI message::
-
-		msg_out = Message(cc, channel)
-
+		msgOut = Message(cc, channel)
 		I create the connector for sending it (of course!)::
-
-		cnx = midi.Connector('path/to/serial/port')
-
-		cnx.write(msg_out)
+		cnx = midi.Connector('path/to/serial/port')::
+		cnx.write(msgOut)
