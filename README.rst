@@ -32,12 +32,27 @@ This library is able to deal with any kind of MIDI messages (except SysEx for th
 
 For more details on the MIDI standard, see Wikipedia MIDI page https://en.wikipedia.org/wiki/MIDI
 
-2) CONTENT
-~~~~~~~~~~
+2) INSTALLATION
+~~~~~~~~~~~~~~~
 Some Content here.
 
-3) USECASES
-~~~~~~~~~~
+3) CONTENT OF THE LIBRARY
+~~~~~~~~~~~~~~~~~~~~~~~~~
+A) Class MidiConnector
+i) Connector object and attributes
+ii) Methods
+
+B) Class Message
+
+C) Classes for different type of MIDI messages
+
+4) USAGE EXAMPLES
+~~~~~~~~~~~~~~~~~
+Before doing anything, import the package to your scrit::
+
+	import midi
+
+Then depending on what you need to do, follow these examples.
 A) Reading MIDI messages (via MIDI IN device)
 
 First, I need to set up a connector object. It requires at least one argument: the port used for the serie interface::
@@ -52,23 +67,23 @@ or::
 
 	msgInChannel8 = cnx.read(8) # returns MIDI messages received on channel 8 only, and ignores the rest
 
-	B) Sending MIDI messages (via MIDI OUT device)
+B) Sending MIDI messages (via MIDI OUT device)
 
-	First you need to create the type of message you need to send (either a Control Change, a Note On, etc...)
+First you need to create the type of message you need to send (either a Control Change, a Note On, etc...)
 
-	Let's say I want to create a Control Change thats sets the value 127 to the control number 12::
+Let's say I want to create a Control Change thats sets the value 127 to the control number 12::
 
-		cc = midi.ControlChange(12, 127)
+	cc = midi.ControlChange(12, 127)
 
-	I want to send the message on channel 15::
+I want to send the message on channel 15::
 
-		channel = 15
+	channel = 15
 
-	Now I have everything I need to build up a MIDI message::
+Now I have everything I need to build up a MIDI message::
 
-		msgOut = Message(cc, channel)
+	msgOut = Message(cc, channel)
 
-	I create the connector for sending it (of course!)::
+I create the connector for sending it (of course!)::
 
-		cnx = midi.Connector('path/to/serial/port')::
-		cnx.write(msgOut)
+	cnx = midi.Connector('path/to/serial/port')::
+	cnx.write(msgOut)
