@@ -3,7 +3,9 @@ PY3-MIDI PACKAGE
 ======================================================
 
 *Created by Edouard Theron* 
+
 ed [at] edtheron [dot] me
+
 *February 2017*
 
 **Published under GNU License**
@@ -36,19 +38,19 @@ Some Content here.
 
 3) USECASES
 ~~~~~~~~~~
-	A) Reading MIDI messages (via MIDI IN device)
+A) Reading MIDI messages (via MIDI IN device)
 
-	First, I need to set up a connector object. It requires at least one argument: the port used for the serie interface::
+First, I need to set up a connector object. It requires at least one argument: the port used for the serie interface::
 
-		cnx = midi.Connector('path/to/serial/port')
+	cnx = midi.Connector('path/to/serial/port')
 
-	Super easy. Now I just have to read through it::
+Super easy. Now I just have to read through it::
 
-		msgIn = cnx.read() # returns any MIDI messages received
+	msgIn = cnx.read() # returns any MIDI messages received
 
-	or::
+or::
 
-		msgInChannel8 = cnx.read(8) # returns MIDI messages received on channel 8 only, and ignores the rest
+	msgInChannel8 = cnx.read(8) # returns MIDI messages received on channel 8 only, and ignores the rest
 
 	B) Sending MIDI messages (via MIDI OUT device)
 
@@ -67,6 +69,6 @@ Some Content here.
 		msgOut = Message(cc, channel)
 
 	I create the connector for sending it (of course!)::
-	
+
 		cnx = midi.Connector('path/to/serial/port')::
 		cnx.write(msgOut)
