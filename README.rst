@@ -38,11 +38,11 @@ Some Content here.
 
 3) CONTENT OF THE LIBRARY
 ~~~~~~~~~~~~~~~~~~~~~~~~~
-A) CLASS MIDICONNECTOR
+A) Class MidiConnector
 
-i) ATTRIBUTES
+	i) ATTRIBUTES
 
-ii) METHODS
+	ii) METHODS
 
 B) Class Message
 
