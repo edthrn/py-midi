@@ -38,15 +38,15 @@ Some Content here.
 
 3) CONTENT OF THE LIBRARY
 ~~~~~~~~~~~~~~~~~~~~~~~~~
-A) Class MidiConnector
+**A) Class MidiConnector**
 
-	i) ATTRIBUTES
+*i) ATTRIBUTES*
 
-	ii) METHODS
+*ii) METHODS*
 
-B) Class Message
+**B) Class Message**
 
-C) Classes for different type of MIDI messages
+**C) Classes for different type of MIDI messages**
 
 4) USAGE EXAMPLES
 ~~~~~~~~~~~~~~~~~
