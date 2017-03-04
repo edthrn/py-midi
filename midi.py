@@ -1,4 +1,5 @@
 import serial
+import time
 from midiTypeMessage import *
 		
 class Message():
@@ -80,7 +81,7 @@ class Message():
 				if not isinstance(channel, int):
 					raise TypeError('2nd positional argument (channel) must be an integer ({} given)'.format(str(type(channel))))
 				elif 1 <= channel <= 16:
-					self.channel = channel
+					self.channel = channel - 1
 				else:
 					raise ValueError('2nd argument (channel) is out of range (must be set from 1 to 16, {} given).'.format(channel))
 
@@ -97,16 +98,16 @@ class Message():
 					self._type = 10
 					self._data1 = self.type.note_number
 					self._data2 = self.type.pressure
-				elif isinstance(self.type, ChannelAftertouch):
-					self._type = 11
-					self._data1 = self.type.pressure
 				elif isinstance(self.type, ControlChange):
-					self._type = 12
+					self._type = 11
 					self._data1 = self.type.control_number
 					self._data2 = self.type.value
 				elif isinstance(self.type, ProgramChange):
-					self._type = 13
+					self._type = 12
 					self._data1 = self.type.program_number
+				elif isinstance(self.type, ChannelAftertouch):
+					self._type = 13
+					self._data1 = self.type.pressure
 				elif isinstance(self.type, PitchWheel):
 					self._type = 14
 					self._data1 = self.type.lsbyte
@@ -185,9 +186,8 @@ class MidiConnector():
 
 	def __init__(self, port, baudrate=31250, timeout=None):
 
-		if timeout:
-			if not isinstance(timeout,int) or not isinstance(timeout, float)
-				raise TypeError('Spcecified timeout must be interger or float ({} given)'.format(type(timeout)))
+		"""if timeout and (not isinstance(timeout,int) or not isinstance(timeout, float)):
+				raise TypeError('Specified timeout must be interger or float ({} given)'.format(type(timeout)))"""
 
 		self.timeout = timeout
 		self.baudrate = baudrate
@@ -198,23 +198,26 @@ class MidiConnector():
 
 		if not channel:
 			omni = True
-		elif not isinstance(channel, int):
-			raise TypeError('Optional argument (channel) must be an integer.')
-		elif not 1 <= channel <= 16:
-			raise ValueError('Specified channel out of range. Must be set from 1 to 16 ({} given).'.format(channel))
+		elif len(channel) != 1:
+			raise ValueError('Only one optional argument max (channel)')
+		elif not isinstance(channel[0], int):
+			raise TypeError('Optional argument (channel) must be an integer ({} given)'.format(str(type(channel[0]))))
+		elif not 1 <= channel[0] <= 16:
+			raise ValueError('Specified channel out of range. Must be set from 1 to 16 ({} given).'.format(channel[0]))
 		else:
 			omni = False
+			channel = channel[0]
 
 		message = [None, None, None]
-		for byte in message:
+		for i in range(3):
 			data = int.from_bytes(self.connector.read(1), 'big')
-			byte = data
+			message[i] = data
 			if message[1] is not None:
 				status = message[0] >> 4 
 				if status == 12 or status == 13: # either a PC message or Channel Aftertouch. They carry only 2 bytes, not 3.
 					break
 
-		if omni or channel == message[0] + 1:
+		if omni or channel == (message[0] & 15) + 1:
 			return Message(status_byte=message[0], data_byte1=message[1], data_byte2=message[2])
 		else:
 			pass
@@ -226,17 +229,17 @@ class MidiConnector():
 			raise TypeError("Argument 'message' must be type Message ({} given).".format(str(type(message))))
 
 		data1 = bytes([message._data1])
-		data2 = bytes([message._data2])
+		data2 = bytes([message._data2]) if message._data2 else None
 
 		if not omni:
 			status = bytes([message._status])
-			msg = [status, data1, data2]
+			msg = [status, data1, data2] if data2 else [status, data1]
 			for byte in msg:
 				self.connector.write(byte)
 
 		else: # send MIDI message on every channels
 			for i in range(16):
-				status = bytes([message._status & i])
-				msg = [status, data1, data2]
+				status = bytes([(message._type << 4) + i])
+				msg = [status, data1, data2] if data2 else [status, data1]
 				for byte in msg:
 					self.connector.write(byte)

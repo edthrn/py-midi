@@ -7,7 +7,7 @@ class NoteOff():
 		self.velocity = velocity
 
 	def __repr__(self):
-		return "\nType: Note OFF\nNote number: {}\nVelocity: {}".format(self.note_number, self.velocity)
+		return "\nType: Note OFF\nNote number: {}\nVelocity: {}\n".format(self.note_number, self.velocity)
 
 class NoteOn():
 	def __init__(self, note_number, velocity):
@@ -15,7 +15,7 @@ class NoteOn():
 		self.velocity = velocity
 
 	def __repr__(self):
-		return "\nType: Note ON\nNote number: {}\nVelocity: {}".format(self.note_number, self.velocity)
+		return "\nType: Note ON\nNote number: {}\nVelocity: {}\n".format(self.note_number, self.velocity)
 
 class PolyphonicAftertouch():
 	def __init__(self, note_number, pressure):
@@ -23,14 +23,14 @@ class PolyphonicAftertouch():
 		self.pressure = pressure
 
 	def __repr__(self):
-		return "\nType: Polyphonic Aftertouch\nNote number: {}\nPressure: {}".format(self.note_number, self.pressure)
+		return "\nType: Polyphonic Aftertouch\nNote number: {}\nPressure: {}\n".format(self.note_number, self.pressure)
 
 class ChannelAftertouch():
 	def __init__(self, pressure):
 		self.pressure = pressure
 
 	def __repr__(self):
-		return "\nType: Channel Aftertouch\nPressure: {}".format(self.pressure)
+		return "\nType: Channel Aftertouch\nPressure: {}\n".format(self.pressure)
 
 class ControlChange():
 	def __init__(self, number, value):
@@ -38,14 +38,14 @@ class ControlChange():
 		self.value = value
 
 	def __repr__(self):
-		return "\nType: Control Change\nControl number: {}\nValue: {}".format(self.control_number, self.value)
+		return "\nType: Control Change\nControl number: {}\nValue: {}\n".format(self.control_number, self.value)
 
 class ProgramChange():
 	def __init__(self, number):
 		self.program_number = number
 
 	def __repr__(self):
-		return "\nType: Program Change\nProgram number: {}".format(self.program_number)
+		return "\nType: Program Change\nProgram number: {}\n".format(self.program_number)
 
 class PitchWheel():
 	"""docstring for PitchWheel
@@ -55,4 +55,4 @@ class PitchWheel():
 		self.msbyte = msbyte
 
 	def __repr__(self):
-		return "\nType: Pitch wheel\nLeast signifant byte: {}\nMost significant byte: {}".format(self.lsbyte, self.msbyte)
+		return "\nType: Pitch wheel\nLeast signifant byte: {}\nMost significant byte: {}\n".format(self.lsbyte, self.msbyte)
