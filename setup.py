@@ -2,7 +2,7 @@
 Copyright (C) Edouard Theron
 """
 
-from setuptools import setup, find_packagesg
+from setuptools import setup, find_packages
 from codecs import open
 from os import path
 
@@ -32,5 +32,5 @@ setup(
     ],
     keywords='package library midi music digital serial interface',
     packages=find_packages(),
-    install_requires=['serial'],
+    install_requires=['pyserial'],
 )

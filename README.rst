@@ -18,7 +18,7 @@ Package for using MIDI standard with Python3
 
 
 1) PURPOSE
-~~~~~~~~~~
+***********
 This Python3 library has been made in order to communicate easily with any MIDI devices. The only requirement is to have a serial
 interface on your computer. It's on this interface that you must connect MIDI cables to establish a communication between your
 machine and the MIDI devices.
@@ -28,28 +28,38 @@ The py3-midi package allows users to build and/or read MIDI messages without hav
 MIDI (Musical Instrument Digital Interface) is a standard making easy for instruments, computers and other electronic devices
 to communicate.
 
-This library is able to deal with any kind of MIDI messages (except SysEx for the moment, coming soon), on any of the 16 possible channels.
+This library is able to deal with any kind of MIDI messages, on any of the 16 possible channels.
 
 For more details on the MIDI standard, see Wikipedia MIDI page https://en.wikipedia.org/wiki/MIDI
 
 2) INSTALLATION
-~~~~~~~~~~~~~~~
-Some Content here.
+***************
+You can install easily the package using Python Package Index. You just have to run the following command::
+
+	python3 -m pip install py3-midi
 
 3) CONTENT OF THE LIBRARY
-~~~~~~~~~~~~~~~~~~~~~~~~~
+*************************
 A) Class MidiConnector
+======================
+Creates an interface between your program and the serial port of the machine. You instanciate by giving the path to the serial port. Example::
 
-i) ATTRIBUTES
+	c = MidiConnector('/dev/serial0') # should be the path on RaspberryPi 3
 
-ii) METHODS
+If you *don't want* the MidiConnector.read() method to block for ever if it receives nothing, use the keyword argument **timeout** to set up a 
+maximum duration (seconds) of blocking highlightlanguage::
+
+	c = MidiConnector('/dev/serial0', timeout=5) 
+
+*(Note: The timeout is only used for reading, not writing)
 
 B) Class Message
+================
 
 C) Classes for different type of MIDI messages
-
-4) USAGE EXAMPLES
-~~~~~~~~~~~~~~~~~
+==============================================
+4) EXAMPLES
+*****************
 Before doing anything, import the package to your script::
 
 	import midi
