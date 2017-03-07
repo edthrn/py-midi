@@ -85,11 +85,11 @@ Here are the exhaustive list, as well as how to instanciate them.
 * ControlChange(control_number, value)
 * ProgramChange(program_number)
 * PitchWheel(least_signifcant_byte, most_significant_byte)
-* SysEx(manufacturer_id, [data to send, wrap in a list])
+* SysEx(manufacturer_id, data1, data2..., data-N)
 
 C) Class Message
 ================
-Represents a MIDI message, with all its properties: ..list-table::
+Represents a MIDI message, with all its properties: .. list-table::
     * - Attribute
       - Represents
     * - type
