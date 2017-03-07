@@ -88,7 +88,7 @@ class Message():
 					raise TypeError(
 						'2nd positional argument (channel) must be an integer ({} given)'.format(str(type(channel))))
 				elif 1 <= channel <= 16:
-					self.channel = channel - 1
+					self.channel = channel
 				else:
 					raise ValueError(
 						'2nd argument (channel) is out of range (must be set from 1 to 16, {} given).'.format(channel))
@@ -129,7 +129,7 @@ class Message():
 						'1st positional argument should not be type {}. Must be NoteOff, NoteOn, PolyphonicAftertouch,'
 						' ChanelAftertouch, ControlChange, ProgramChange or PitchWheel'.format(str(type((self.type)))))
 
-				self._status = (self._type << 4) + self.channel
+				self._status = (self._type << 4) + (self.channel - 1)
 
 		else:
 			raise TypeError('Missing argument to build a Message object (2 positional arguments required)')
