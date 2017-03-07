@@ -47,12 +47,12 @@ Then you can import it with the directive::
 A) Class MidiConnector
 ======================
 Creates an interface between your program and the serial port of the machine. You instanciate by giving the path to the serial port.
-Example .. highlightlang::
+Example .. highlight::
 
 	c = MidiConnector('/dev/serial0') # should be the path on RaspberryPi 3
 
 If you *don't want* the MidiConnector.read() method to block for ever if it receives nothing, use the keyword argument **timeout** to set up a 
-maximum duration (seconds) of blocking .. highlightlang::
+maximum duration (seconds) of blocking .. highlight::
 
 	c = MidiConnector('/dev/serial0', timeout=5) 
 
