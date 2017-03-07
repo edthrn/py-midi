@@ -280,9 +280,12 @@ class MidiConnector():
 				elif status == 15:  # SysEx message
 					sysEx = True
 					message[2] = []
-					data = int.from_bytes(self.connector.read(1), 'big')
-					while data != 0xf7:
-						message[2].append(data)
+					while True:
+						data = int.from_bytes(self.connector.read(1), 'big')
+						if data != 0xf7:
+							message[2].append(data)
+						else:
+							break
 					break
 
 		if omni or channel == (message[0] & 15) + 1 or sysEx:
