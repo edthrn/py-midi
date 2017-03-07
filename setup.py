@@ -12,11 +12,11 @@ with open(path.join(here, 'README.rst'), encoding='utf-8') as f:
     long_description = f.read()
 
 setup(
-    name='py3-midi',
+    name='py-midi',
     version='1.1.1',
     description='A package for sending and receiving MIDI messages easily.',
     long_description=long_description,
-    url='https://github.com/edouardtheron/py3-midi',
+    url='https://github.com/edouardtheron/py-midi',
     author='Edouard Theron',
     author_email='edouard@edtheron.me',
     license='GNU',

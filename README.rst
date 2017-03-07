@@ -1,5 +1,5 @@
 =================
-PY3-MIDI LIBRARY
+PY-MIDI LIBRARY
 =================
 
 *Created by Edouard Theron* 
@@ -23,7 +23,7 @@ This Python3 library has been made in order to communicate easily with any MIDI 
 interface on your computer. It's on this interface that you must connect MIDI cables to establish a communication between your
 machine and the MIDI devices.
 
-The py3-midi library allows users to build and/or read MIDI messages without having to worry on formating them before sending and/or after receiving.
+The py-midi library allows users to build and/or read MIDI messages without having to worry on formating them before sending and/or after receiving.
 
 MIDI (Musical Instrument Digital Interface) is a standard used for making easy for instruments, computers and other electronic devices
 to communicate.
@@ -36,7 +36,7 @@ For more details on the MIDI standard, see Wikipedia MIDI page https://en.wikipe
 ***************
 You can install easily the package using Python Package Index. You just have to run the following command::
 
-	$ python3 -m pip install py3-midi
+	$ python3 -m pip install py-midi
 
 Then you can import the package to your program::
 
@@ -94,8 +94,8 @@ Represents a MIDI message, with all its properties:
 +--------------+------------------------------------------------------------+
 | Attributes   |  Represents                                                |
 +==============+============================================================+
-| type         | The type of MIDI message: Control Change, Program Change,  |
-|              | Note Off, Note On, etc...                                  |
+| type         | The type of MIDI message: ControlChange, ProgramChange,    |
+|              | NoteOff, NoteOn, etc...                                    |
 +--------------+------------------------------------------------------------+
 | channel      | The channel used to send or the channel on which it has    |
 |              | been sent (from 1 to 16)                                   |
