@@ -47,7 +47,7 @@ Creates an interface between your program and the serial port of the machine. Yo
 	c = MidiConnector('/dev/serial0') # should be the path on RaspberryPi 3
 
 If you *don't want* the MidiConnector.read() method to block for ever if it receives nothing, use the keyword argument **timeout** to set up a 
-maximum duration (seconds) of blocking highlightlanguage::
+maximum duration (seconds) of blocking highlightlanguage:: python
 
 	c = MidiConnector('/dev/serial0', timeout=5) 
 
