@@ -62,11 +62,11 @@ For reading messages received via MIDI IN, use the method read() as follow::
 
     msg = c.read()
 
- For sending messages via MIDI OUT::
+For sending messages via MIDI OUT::
 
     c.write(msg)
 
- By default, reading is done in **OMNI** mode, whereas writing is specific to a channel. However, you can override the default
+By default, reading is done in **OMNI** mode, whereas writing is specific to a channel. However, you can override the default
 behavior. For further details, run::
 
     help(MidiConnector)
