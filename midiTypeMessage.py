@@ -56,3 +56,19 @@ class PitchWheel():
 
 	def __repr__(self):
 		return "\nType: Pitch wheel\nLeast signifant byte: {}\nMost significant byte: {}\n".format(self.lsbyte, self.msbyte)
+
+class SysEx():
+	def __init__(self, id, *args):
+		self.id = id
+		self.data = []
+
+		if args:
+			for arg in args:
+				if not isinstance(arg, int):
+					raise TypeError('All data transmitted through SysEx must be integers ({} given)'.format(type(arg)))
+				else:
+					self.data.append(arg)
+
+
+	def __repr__(self):
+		return "\nType: SysEx message\nID: {}\nData: {}\n".format(self.id, self.data)
