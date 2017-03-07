@@ -36,22 +36,27 @@ For more details on the MIDI standard, see Wikipedia MIDI page https://en.wikipe
 ***************
 You can install easily the package using Python Package Index. You just have to run the following command::
 
-	python3 -m pip install py3-midi
+	$ python3 -m pip install py3-midi
+
+Then you can import it with the directive::
+
+	import midi
 
 3) CONTENT OF THE LIBRARY
 *************************
 A) Class MidiConnector
 ======================
-Creates an interface between your program and the serial port of the machine. You instanciate by giving the path to the serial port. Example::
+Creates an interface between your program and the serial port of the machine. You instanciate by giving the path to the serial port.
+Example .. highlighlang::
 
 	c = MidiConnector('/dev/serial0') # should be the path on RaspberryPi 3
 
 If you *don't want* the MidiConnector.read() method to block for ever if it receives nothing, use the keyword argument **timeout** to set up a 
-maximum duration (seconds) of blocking highlightlanguage:: python
+maximum duration (seconds) of blocking .. highlighlang::
 
 	c = MidiConnector('/dev/serial0', timeout=5) 
 
-*(Note: The timeout is only used for reading, not writing)
+*(Note: The timeout is only used for reading, not writing)*
 
 B) Class Message
 ================
@@ -59,7 +64,7 @@ B) Class Message
 C) Classes for different type of MIDI messages
 ==============================================
 4) EXAMPLES
-*****************
+*************
 Before doing anything, import the package to your script::
 
 	import midi
