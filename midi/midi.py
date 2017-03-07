@@ -194,10 +194,10 @@ class Message():
 	def _set_msbyte(self, msbyte):
 		self.type.msbyte = msbyte
 
-	def _get_id(self):
+	def _get_sysExId(self):
 		return self.type.id
 
-	def _set_id(self, id):
+	def _set_sysExId(self, id):
 		self.type.id = id
 
 	def _get_data(self):
@@ -216,7 +216,7 @@ class Message():
 	program_number = property(_get_program_number, _set_program_number)
 	lsbyte = property(_get_lsbyte, _set_lsbyte)
 	msbyte = property(_get_msbyte, _set_msbyte)
-	id = property(_get_id, _set_id)
+	sysExId = property(_get_sysExId, _set_sysExId)
 	sysExData = property(_get_data, _set_data)
 
 
