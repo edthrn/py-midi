@@ -89,19 +89,27 @@ Here are the exhaustive list, as well as how to instanciate them.
 
 C) Class Message
 ================
-Represents a MIDI message, with all its properties: .. list-table::
-    * - Attribute
-      - Represents
-    * - type
-      - The type of MIDI message: Control Change, Program Change, Note Off, Note On, etc...
-    * - channel
-      - The channel used to send or the channel on which it has been sent (from 1 to 16)
-    * - status
-      - The value of first message byte
-    * - data1
-      - The value of second message byte
-    * - data2
-      - The value of third byte. Note: some types (Program Change or Channel Aftertouch) carry only 2 bytes.
+Represents a MIDI message, with all its properties:
+
++--------------+------------------------------------------------------------+
+| Attributes   |  Represents                                                |
++==============+============================================================+
+| type         | The type of MIDI message: Control Change, Program Change,  |
+|              | Note Off, Note On, etc...                                  |
++--------------+------------------------------------------------------------|
+| channel      | The channel used to send or the channel on which it has    |
+|              | been sent (from 1 to 16)                                   |
++--------------+------------------------------------------------------------|
+| status       | The value of first message byte                            |
+|              |                                                            |
++--------------+------------------------------------------------------------|
+| data1        | The value of second message byte                           |
+|              |                                                            |
++--------------+------------------------------------------------------------|
+| data2        | The value of third message byte                            |
+|              | *Note: some types carry only 2 bytes*                      |
++--------------+------------------------------------------------------------|
+
 
 If you want to build a MIDI message, you need to use positionnal arguments, first the type, then the channel::
 
@@ -109,7 +117,7 @@ If you want to build a MIDI message, you need to use positionnal arguments, firs
     channel = 1
     msg = Message(note_on, channel)
 
-Then you can access other properties, e.g. for a message type NoteOn:
+Then you can access other properties, e.g. for a message type NoteOn::
     >>> msg.velocity
     102
     >>> hex(msg.status) # The first byte of a NoteOn sent on channel 1 will be 1001 0000
