@@ -2,20 +2,19 @@
 PY-MIDI LIBRARY
 =================
 
-*Created by Edouard Theron* 
+**A library for communicating via MIDI standard using Python3**
 
+*Published under GNU License*
+
+**This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY**
+
+It has been built for working on Python3, and I do not guaranty that it'll work using Python2.
+
+Do not hesitate to use Issues if necessary.
 ed [at] edtheron [dot] me
-
-*February 2017*
-
-**Published under GNU License**
 
 .. sectum::
 .. contents:: Table of Contents
-
-
-Package for using MIDI standard with Python3
-
 
 1) PURPOSE
 ***********

@@ -1,5 +1,6 @@
-"""Setup tool for the package Py3-midi
-Copyright (C) Edouard Theron
+"""Setup tool for the package Py-midi
+Created by Edouard Theron
+Febuary 2017
 """
 
 from setuptools import setup, find_packages
