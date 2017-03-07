@@ -217,7 +217,7 @@ class Message():
 	lsbyte = property(_get_lsbyte, _set_lsbyte)
 	msbyte = property(_get_msbyte, _set_msbyte)
 	id = property(_get_id, _set_id)
-	data = property(_get_data, _set_data)
+	sysExData = property(_get_data, _set_data)
 
 
 class MidiConnector():
@@ -226,7 +226,7 @@ class MidiConnector():
 	def __init__(self, port, baudrate=31250, timeout=None):
 		"""
 		``port`` must be string, representing the path used for connecting to the machine's serial interface
-		Example: on Raspberry3, the path to serail port is '/dev/serial0'
+		Example: on Raspberry3, the path to serial port is '/dev/serial0'
 
 		``baudrate`` is an int set up at 31250 by default and should not be changed. This is the standard
 		baudrate, used by all MIDI devices.
@@ -255,7 +255,7 @@ class MidiConnector():
 		is reached before receiving a message. By default, timeout is None, which means that the method will block as long 
 		as necessary, until receiving a message.
 		"""
-		sysex = False
+		sysEx = False
 
 		if not channel:
 			omni = True
@@ -278,13 +278,14 @@ class MidiConnector():
 				if status == 12 or status == 13:  # either a PC message or Channel Aftertouch. They carry only 2 bytes, not 3.
 					break
 				elif status == 15:  # SysEx message
-					sysex = True
+					sysEx = True
 					message[2] = []
 					data = int.from_bytes(self.connector.read(1), 'big')
 					while data != 0xf7:
 						message[2].append(data)
+					break
 
-		if omni or channel == (message[0] & 15) + 1 or sysex:
+		if omni or channel == (message[0] & 15) + 1 or sysEx:
 			return Message(status_byte=message[0], data_byte1=message[1], data_byte2=message[2])
 		else:
 			pass

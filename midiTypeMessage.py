@@ -69,6 +69,5 @@ class SysEx():
 				else:
 					self.data.append(arg)
 
-
 	def __repr__(self):
 		return "\nType: SysEx message\nID: {}\nData: {}\n".format(self.id, self.data)
