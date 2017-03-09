@@ -11,6 +11,7 @@ PY-MIDI LIBRARY
 It has been built for working on Python3, and I do not guaranty that it'll work using Python2.
 
 Do not hesitate to use Issues if necessary.
+
 ed [at] edtheron [dot] me
 
 .. sectum::
@@ -45,13 +46,11 @@ Then you can import the package to your program::
 *************************
 A) Class MidiConnector
 ======================
-Creates an interface between your program and the serial port of the machine. You instanciate by giving the path to the serial port.
-Example .. highlights::
+Creates an interface between your program and the serial port of the machine. You instanciate by giving the path to the serial port. Example::
 
-	c = MidiConnector('/dev/serial0') # should be the path on RaspberryPi 3
+	c = MidiConnector('/dev/serial0') # should be the path used on RaspberryPi 3
 
-If you *don't want* the MidiConnector.read() method to block for ever if it receives nothing, use the keyword argument **timeout** to set up a 
-maximum duration (seconds) of blocking .. highlights::
+If you *don't want* the MidiConnector.read() method to block for ever if it receives nothing, use the keyword argument **timeout** to set up a maximum duration (seconds) of blocking::
 
     c = MidiConnector('/dev/serial0', timeout=5)
 
@@ -91,7 +90,7 @@ C) Class Message
 Represents a MIDI message, with all its properties:
 
 +--------------+------------------------------------------------------------+
-| Attributes   |  Represents                                                |
+| Attribute    |  Represents                                                |
 +==============+============================================================+
 | type         | The type of MIDI message: ControlChange, ProgramChange,    |
 |              | NoteOff, NoteOn, etc...                                    |
@@ -124,7 +123,7 @@ Then you can access other properties, e.g. for a message type NoteOn::
 
 4) EXAMPLES
 *************
-Before doing anything, import the package to your script::
+Before doing anything, import the package to your program::
 
 	import midi
 
@@ -168,7 +167,11 @@ Now I have everything I need to build up a MIDI message::
 
 	msgOut = midi.Message(cc, channel)
 
-I create the connector for sending it (of course!)::
+I create the connector for sending the message (of course!)::
 
 	c = midi.Connector('path/to/serial/port')
 	c.write(msgOut)
+
+Do not hesitate to read helpers for further details, for example::
+
+	>>> help(midi.MidiConnector)
