@@ -3,6 +3,8 @@ __pycache__/
 *.py[cod]
 *$py.class
 
+guidelines-update.txt
+
 # C extensions
 *.so
 

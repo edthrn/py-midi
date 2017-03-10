@@ -4,11 +4,11 @@ PY-MIDI LIBRARY
 
 **A library for communicating via MIDI standard using Python3**
 
+*Warning: To use with Python3 only*. The library doesn't work with Python2.
+
 *Published under GNU License*
 
 **This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY**
-
-It has been built for working on Python3, and I do not guaranty that it'll work using Python2.
 
 Do not hesitate to use Issues if necessary.
 
