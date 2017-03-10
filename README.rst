@@ -38,6 +38,10 @@ You can install easily the package using Python Package Index. You just have to 
 
 	$ python3 -m pip install py-midi
 
+or::
+
+	$ sudo pip3 install py-midi
+
 Then you can import the package to your program::
 
 	import midi
