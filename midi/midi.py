@@ -1,75 +1,7 @@
+# -*-coding:Utf-8 -*
+
 import serial
-
-class NoteOff():
-	def __init__(self, note_number, velocity):
-		self.note_number = note_number
-		self.velocity = velocity
-
-	def __repr__(self):
-		return "\nType: Note OFF\nNote number: {}\nVelocity: {}\n".format(self.note_number, self.velocity)
-
-class NoteOn():
-	def __init__(self, note_number, velocity):
-		self.note_number = note_number
-		self.velocity = velocity
-
-	def __repr__(self):
-		return "\nType: Note ON\nNote number: {}\nVelocity: {}\n".format(self.note_number, self.velocity)
-
-class PolyphonicAftertouch():
-	def __init__(self, note_number, pressure):
-		self.note_number = note_number
-		self.pressure = pressure
-
-	def __repr__(self):
-		return "\nType: Polyphonic Aftertouch\nNote number: {}\nPressure: {}\n".format(self.note_number, self.pressure)
-
-class ChannelAftertouch():
-	def __init__(self, pressure):
-		self.pressure = pressure
-
-	def __repr__(self):
-		return "\nType: Channel Aftertouch\nPressure: {}\n".format(self.pressure)
-
-class ControlChange():
-	def __init__(self, number, value):
-		self.control_number = number
-		self.value = value
-
-	def __repr__(self):
-		return "\nType: Control Change\nControl number: {}\nValue: {}\n".format(self.control_number, self.value)
-
-class ProgramChange():
-	def __init__(self, number):
-		self.program_number = number
-
-	def __repr__(self):
-		return "\nType: Program Change\nProgram number: {}\n".format(self.program_number)
-
-class PitchWheel():
-	"""docstring for PitchWheel
-	https://www.midikits.net/midi_analyser/pitch_bend.htm"""
-	def __init__(self, lsbyte, msbyte):
-		self.lsbyte = lsbyte
-		self.msbyte = msbyte
-
-	def __repr__(self):
-		return "\nType: Pitch wheel\nLeast signifant byte: {}\nMost significant byte: {}\n".format(self.lsbyte, self.msbyte)
-
-class SysEx():
-	def __init__(self, id, *args):
-		self.id = id
-		self.data = []
-
-		if args:
-			for arg in args:
-				if not isinstance(arg, int):
-					raise TypeError('All data transmitted through SysEx must be integers ({} given)'.format(type(arg)))
-				else:
-					self.data.append(arg)
-
-	def __repr__(self):
-		return "\nType: SysEx message\nID: {}\nData: {}\n".format(self.id, self.data)
+from .types import *
 
 class Message():
 	"""Represent a complete MIDI message.
@@ -137,11 +69,11 @@ class Message():
 			elif self._type == 11:
 				self.type = ControlChange(self._data1, self._data2)
 			elif self._type == 12:
-				self.type = ProgramChange(self._data1)
+				self.type = ProgramChange(self._data1 + 1) # PC are numbered from 1 to 128
 			elif self._type == 13:
 				self.type = ChannelAftertouch(self._data1)
 			elif self._type == 14:
-				self.type = PitchWheel(self._data1, self._data2)
+				self.type = PitchBend(self._data1, self._data2)
 			elif self._type == 15:
 				self.type = SysEx(self._data1, self._data2)
 			else:
@@ -182,11 +114,11 @@ class Message():
 					self._data2 = self.type.value
 				elif isinstance(self.type, ProgramChange):
 					self._type = 12
-					self._data1 = self.type.program_number
+					self._data1 = self.type.program_number - 1
 				elif isinstance(self.type, ChannelAftertouch):
 					self._type = 13
 					self._data1 = self.type.pressure
-				elif isinstance(self.type, PitchWheel):
+				elif isinstance(self.type, PitchBend):
 					self._type = 14
 					self._data1 = self.type.lsbyte
 					self._data2 = self.type.msbyte
