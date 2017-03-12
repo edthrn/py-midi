@@ -12,7 +12,7 @@ class NoteOff():
 	def __init__(self, note_number, velocity):
 
 
-		if not isinstance(note_number, int) or isinstance(velocity, int):
+		if not isinstance(note_number, int) or not isinstance(velocity, int):
 			raise TypeError('Note number and pressure value must be type int')
 		elif not 0 <= note_number <= 127:
 			raise ValueError('Specified note number is out of range. Must be set from 0 to 127 ({} given).'.format(note_number))
@@ -37,7 +37,7 @@ class NoteOn():
 
 	def __init__(self, note_number, velocity):
 
-		if not isinstance(note_number, int) or isinstance(velocity, int):
+		if not isinstance(note_number, int) or not isinstance(velocity, int):
 			raise TypeError('Note number and pressure value must be type int')
 		elif not 0 <= note_number <= 127:
 			raise ValueError('Specified note number is out of range. Must be set from 0 to 127 ({} given).'.format(note_number))
@@ -64,7 +64,7 @@ class PolyphonicAftertouch():
 
 	def __init__(self, note_number, pressure):
 
-		if not isinstance(note_number, int) or isinstance(pressure, int):
+		if not isinstance(note_number, int) or not isinstance(pressure, int):
 			raise TypeError('Note number and pressure value must be type int')
 		elif not 0 <= note_number <= 127:
 			raise ValueError('Specified note number is out of range. Must be set from 0 to 127 ({} given).'.format(note_number))
@@ -105,7 +105,7 @@ class ControlChange():
 	"""
 	def __init__(self, number, value):
 
-		if not isinstance(number, int) or isinstance(value, int):
+		if not isinstance(number, int) or not isinstance(value, int):
 			raise TypeError('Control number and value must be type int')
 		elif not 0 <= number <= 127:
 			raise ValueError('Specified control number is out of range. Must be set from 0 to 127 ({} given).'.format(number))
@@ -149,7 +149,7 @@ class PitchBend():
 
 	def __init__(self, lsbyte, msbyte):
 
-		if not isinstance(lsbyte, int) or isinstance(msbyte, int):
+		if not isinstance(lsbyte, int) or not isinstance(msbyte, int):
 			raise TypeError('Bytes values must be type int')
 		elif not 0 <= lsbyte <= 127:
 			raise ValueError('Specified 1st byte value is out of range. Must be set from 0 to 127 ({} given).'.format(lsbyte))
