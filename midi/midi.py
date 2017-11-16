@@ -238,7 +238,7 @@ class MidiConnector():
 		not writing.
 		"""
 
-		if timeout and (not isinstance(timeout,float) or not isinstance(timeout,int)):
+		if timeout and not isinstance(timeout,float) or timeout and not isinstance(timeout,int):
 				raise TypeError('Specified timeout must be float or integer ({} given)'.format(type(timeout)))
 
 		self.timeout = timeout
