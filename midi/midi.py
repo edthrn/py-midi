@@ -10,7 +10,7 @@ class Message():
     - type: the type of message (ControlChange, NoteOn, NoteOff, ProgramChange, etc...)
     - channel: the channel used for sending the message, or for receiving it.
     - status: the first byte of the message, known as 'status byte'
-    - data1 and data2: the second and third bytes(if it's a 3 bytes message)
+    - first_data1 and second_data: the second and third bytes(if it's a 3 bytes message)
 
     You can also access the attributes of the different message types.
     Example:
@@ -137,89 +137,99 @@ class Message():
             raise TypeError('Missing argument to build a Message object (2 positional arguments required)')
 
     def __repr__(self):
-        return "Channel: {}{}".format(self.channel, self.type)
+        return "Message({}, {})".format(self.channel, self.type)
 
-    def _get_status(self):
+    @property
+    def status(self):
         return self._status
 
-    def _get_data1(self):
+    @property
+    def first_data(self):
         return self._data1
 
-    def _get_data2(self):
+    @property
+    def second_data(self):
         return self._data2
 
-    def _get_velocity(self):
+    @property
+    def velocity(self):
         return self.type.velocity
 
-    def _set_velocity(self, velocity):
-        self.type.velocity = velocity
+    @velocity.setter
+    def velocity(self, value):
+        self.type.velocity = value
 
-    def _get_pressure(self):
+    @property
+    def pressure(self):
         return self.type.pressure
 
-    def _set_pressure(self, pressure):
-        self.type.pressure = pressure
+    @pressure.setter
+    def pressure(self, value):
+        self.type.pressure = value
 
-    def _get_value(self):
+    @property
+    def value(self):
         return self.type.value
 
-    def _set_value(self, value):
+    @value.setter
+    def value(self, value):
         self.type.value = value
 
-    def _get_note_number(self):
+    @property
+    def note_number(self):
         return self.type.note_number
 
-    def _set_note_number(self, note_number):
-        self.type.note_number = note_number
+    @note_number.setter
+    def note_number(self, value):
+        self.type.note_number = value
 
-    def _get_control_number(self):
+    @property
+    def control_number(self):
         return self.type.control_number
 
-    def _set_control_number(self, control_number):
-        self.type.control_number = control_number
+    @control_number.setter
+    def control_number(self, value):
+        self.type.control_number = value
 
-    def _get_program_number(self):
+    @property
+    def program_number(self):
         return self.type.program_number
 
-    def _set_program_number(self, program_number):
-        self.type.program_number = program_number
+    @program_number.setter
+    def program_number(self, value):
+        self.type.program_number = value
 
-    def _get_lsbyte(self):
+    @property
+    def lsbyte(self):
         return self.type.lsbyte
 
-    def _set_lsbyte(self, lsbyte):
-        self.type.lsbyte = lsbyte
+    @lsbyte.setter
+    def lsbyte(self, value):
+        self.type.lsbyte = value
 
-    def _get_msbyte(self):
+    @property
+    def msbyte(self):
         return self.type.msbyte
 
-    def _set_msbyte(self, msbyte):
-        self.type.msbyte = msbyte
+    @msbyte.setter
+    def msbyte(self, value):
+        self.type.msbyte = value
 
-    def _get_sysExId(self):
+    @property
+    def sysex_id(self):
         return self.type.id
 
-    def _set_sysExId(self, id):
-        self.type.id = id
+    @sysex_id.setter
+    def sysex_id(self, id_):
+        self.type.id = id_
 
-    def _get_data(self):
+    @property
+    def sysex_data(self):
         return self.type.data
 
-    def _set_data(self, data):
+    @sysex_data.setter
+    def sysex_data(self, data):
         self.type.data = data
-
-    status = property(_get_status)
-    data1 = property(_get_data1)
-    data2 = property(_get_data2)
-    note_number = property(_get_note_number, _set_note_number)
-    velocity = property(_get_velocity, _set_velocity)
-    pressure = property(_get_pressure, _set_pressure)
-    control_number = property(_get_control_number, _set_control_number)
-    program_number = property(_get_program_number, _set_program_number)
-    lsbyte = property(_get_lsbyte, _set_lsbyte)
-    msbyte = property(_get_msbyte, _set_msbyte)
-    sysExId = property(_get_sysExId, _set_sysExId)
-    sysExData = property(_get_data, _set_data)
 
 
 class MidiConnector():
