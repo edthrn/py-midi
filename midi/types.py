@@ -30,9 +30,6 @@ class NoteOff:
     def __repr__(self):
         return "NoteOff({}, {})".format(self.note_number, self.velocity)
 
-    def __str__(self):
-        return "\nType: Note OFF\nNote number: {}\nVelocity: {}\n".format(
-            self.note_number, self.velocity)
 
 class NoteOn:
     """ Creates a MIDI message type Note On.
@@ -65,9 +62,6 @@ class NoteOn:
     def __repr__(self):
         return "NoteOn({}, {})".format(self.note_number, self.velocity)
 
-    def __str__(self):
-        return "\nType: Note ON\nNote number: {}\nVelocity: {}\n".format(
-            self.note_number, self.velocity)
 
 class PolyphonicAftertouch:
     """ Creates a MIDI message type Polyphonic Aftertouch.
@@ -101,13 +95,9 @@ class PolyphonicAftertouch:
         self.pressure = pressure
 
     def __repr__(self):
-        return "PolyphonicAftertouch({}, {})".format(
-            self.note_number, self.pressure)
+        return "PolyphonicAftertouch({}, {})".format(self.note_number,
+                                                     self.pressure)
 
-    def __str__(self):
-        return "\nType: Polyphonic Aftertouch\n" \
-               "Note number: {}\nPressure: {}\n".format(
-            self.note_number, self.pressure)
 
 class ChannelAftertouch:
     """ Creates a MIDI message type Channel Aftertouch.
@@ -132,9 +122,6 @@ class ChannelAftertouch:
     def __repr__(self):
         return "ChannelAftertouch({})".format(self.pressure)
 
-    def __str__(self):
-        return "\nType: Channel Aftertouch\nPressure: {}\n".format(
-            self.pressure)
 
 class ControlChange:
     """ Creates a MIDI message type Control Change.
@@ -162,9 +149,6 @@ class ControlChange:
     def __repr__(self):
         return "ControlChange({}, {})".format(self.control_number, self.value)
 
-    def __str__(self):
-        return "\nType: Control Change\nControl number: {}\nValue: {}\n".format(
-            self.control_number, self.value)
 
 class ProgramChange:
     """ Creates a MIDI message type Program Change.
@@ -188,10 +172,6 @@ class ProgramChange:
 
     def __repr__(self):
         return "ProgramChange({})".format(self.program_number)
-
-    def __str__(self):
-        return "\nType: Program Change\nProgram number: {}\n".format(
-            self.program_number)
 
 
 class PitchBend:
@@ -224,9 +204,6 @@ class PitchBend:
     def __repr__(self):
         return "PitchBend({}, {})".format(self.lsbyte, self.msbyte)
 
-    def __str__(self):
-        return "\nType: Pitch bend\nLeast signifant byte: {}\n" \
-               "Most significant byte: {}\n".format(self.lsbyte, self.msbyte)
 
 class SysEx:
     """Creates a MIDI message type SysEx.
@@ -262,5 +239,3 @@ class SysEx:
     def __repr__(self):
         return "SysEx({}, {})".format(self.id, self.data)
 
-    def __str__(self):
-        return "\nType: SysEx message\nID: {}\nData: {}\n".format(self.id, self.data)
