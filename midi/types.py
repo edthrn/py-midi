@@ -220,14 +220,16 @@ class SysEx:
         sysex = SysEx(41, 255, 0, 127, 54) # will build a message specific to
         Yamaha devices, with data [255, 0, 127, 54] (in this order)
 
-    *Just give ID and data to arguments, no more, no less.*
+    *Just give ID and data to constructor. No more, no less.*
     """
 
     def __init__(self, id, *args):
         self.id = id
         self.data = []
 
-        if args:
+        if not args:
+            raise TypeError('Missing data args to build SysEx.')
+        else:
             for arg in args:
                 if not isinstance(arg, int):
                     raise TypeError(
