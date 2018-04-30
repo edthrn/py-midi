@@ -135,17 +135,18 @@ class Message:
     def __repr__(self):
         return "Message({}, {})".format(self.type, self.channel)
 
-    @property
-    def status(self):
-        return self._status
+    def __len__(self):
+        return len(self.content)
+
+    def __getitem__(self, index):
+        return self.content[index]
 
     @property
-    def first_data(self):
-        return self._data1
+    def content(self):
+        if self._data2 is None:
+            return [self._status, self._data1]
 
-    @property
-    def second_data(self):
-        return self._data2
+        return [self._status, self._data1, self._data2]
 
     @property
     def velocity(self):
@@ -251,11 +252,9 @@ class MidiConnector:
         self.connector = serial.Serial(
             port=self.port, baudrate=self.baudrate, timeout=self.timeout)
 
-
     def __repr__(self):
         return "MidiConnector({}, baudrate={}, timeout={})".format(
             self.port, self.baudrate, self.timeout)
-
 
     def read(self, channel=None):
         """
@@ -269,7 +268,7 @@ class MidiConnector:
         before receiving a message. By default, self.timeout is None, so
         self.read() will block as long as necessary, until receiving a message.
         """
-        sysEx = False
+        sysex = False
 
         if channel is None:
             omni = True
@@ -295,7 +294,7 @@ class MidiConnector:
                     # they carry only 2 bytes, not 3
                     break
                 elif status == 15:  # SysEx message
-                    sysEx = True
+                    sysex = True
                     message[2] = []
                     while True:
                         data = int.from_bytes(self.connector.read(1), 'big')
@@ -305,7 +304,7 @@ class MidiConnector:
                             break
                     break
 
-        if omni or (channel == (message[0] & 15) + 1) or sysEx:
+        if omni or (channel == (message[0] & 15) + 1) or sysex:
             return Message(
                 status=message[0],
                 first_data=message[1],
