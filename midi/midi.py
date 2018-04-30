@@ -1,45 +1,38 @@
 # -*-coding:Utf-8 -*
-
 import serial
+
 from .types import *
 
-class Message():
-    """Represent a complete MIDI message.
+class Message:
+    """A complete MIDI message object.
+
+    Users must use positional arguments to instantiate:
+        1st arg: Type of message (ProgramChange, NoteOff, etc...
+            See types.py
+        2nd arg: Channel (int from 1 to 16)
+
+    Example:
+    >>> msg = Message(NoteOn(82, 127), 1)
+
+    **Users MUST NOT use keywords arguments**. It is implemented for internal
+    use only.
 
     Attributes:
-    - type: the type of message (ControlChange, NoteOn, NoteOff, ProgramChange, etc...)
-    - channel: the channel used for sending the message, or for receiving it.
+    - type: the type of message (ControlChange, NoteOn, , ProgramChange, etc...)
+    - channel: MIDI channel used for sending/reading messages (from 1 to 16)
     - status: the first byte of the message, known as 'status byte'
-    - first_data1 and second_data: the second and third bytes(if it's a 3 bytes message)
+    - first_data1 and second_data: the second and third bytes
+    (if it's a 3-byte message)
 
-    You can also access the attributes of the different message types.
-    Example:
-    - if it's a ControlChange, you can call Message.control_number and Message.value
-    - if it's a NoteOn, you can call Message.note_number and Message.velocity
-    etc... (see midiTypeMessage for more details)
+    You can also access the attributes of the different message types, eg, for
+    ControlChange, you can call
+    >>> msg.control_number
+    or
+    >>> msg.value
+    (see types.py for more details)
     """
 
     def __init__(self, *args, **kwargs):
-        """
-        Build the MIDI message.
-
-        Warning: keywords arguments *MUST ONLY BE USED* by the library itself, not by programmers.
-
-        Programmers must use positional arguments.
-        Positionnal arguments must be:
-            1) Type of message (ProgramChange, NoteOff, etc...). See midiTypeMessages.py
-            2) Channel (int from 1 to 16).
-
-        Be prepared to raise TypeError if you don't respect this order or the required types, or if you want
-        to name the arguments!
-
-        Examples:
-        * msg = Message(NoteOff(52, 8), 15) # This is good. It works
-        -> Passing any other type of arguments will raise a TypeError
-        -> Passing (25) as 2nd arg (channel) will raise a ValueError (channels go from 1 to 16)
-        * msg = Message(channel=15, type=NoteOff(52,8)) # This will raise a TypeError (unknown keywords argument)
-        """
-
         self.type = None
         self.channel = None
         self._type = None  # 4 bits reprensenting the message type
@@ -47,15 +40,10 @@ class Message():
         self._data1 = None  # 2nd byte
         self._data2 = None  # 3rd byte
 
-        if kwargs: # Used by the library to build a message when receiving bytes on MIDI IN
-            for key in kwargs.keys():
-                if key not in ['status_byte', 'data_byte1', 'data_byte2']:
-                    raise TypeError("{} argument unknown. Keywords arguments must be 'status_byte', 'data_byte1' and"
-                                    "data_byte2".format(key))
-
-            self._data1 = kwargs['data_byte1']
-            self._data2 = kwargs['data_byte2']
-            self._status = kwargs['status_byte']
+        if kwargs:  # for internal use only (when reading message)
+            self._data1 = kwargs['first_data']
+            self._data2 = kwargs['second_data']
+            self._status = kwargs['status']
 
             self.channel = (self._status & 15) + 1  # get the 4 least important bits
             self._type = self._status >> 4  # get the 4 most important bits
@@ -63,7 +51,11 @@ class Message():
             if self._type == 8:
                 self.type = NoteOff(self._data1, self._data2)
             elif self._type == 9:
-                self.type = NoteOn(self._data1, self._data2) if self._data2 != 0 else NoteOff(self._data1, self._data2)
+                if self._data2 == 0:
+                    # NoteOn with velocity = 0 are in fact NoteOff
+                    self.type = NoteOff(self._data1, self._data2)
+                else:
+                    self.type = NoteOn(self._data1, self._data2)
             elif self._type == 10:
                 self.type = PolyphonicAftertouch(self._data1, self._data2)
             elif self._type == 11:
@@ -81,9 +73,10 @@ class Message():
                     'Cannot build a MIDI message. Please verify value of status byte (must be greater or equal'
                     'than 128 (1000 0000) and less or equal than 255 (1111 1111)')
 
-        elif args:  # used by programmers for building a message to send via MIDI OUT
+        elif args:
             if len(args) != 2:
-                raise TypeError('Message.__init__() takes 2 positional arguments ({} given)'.format(len(args)))
+                raise TypeError("Message.__init__() takes 2 positional arguments,"
+                                "'type' and 'content' ({} given)".format(len(args)))
             else:
                 channel = args[1]
                 if not isinstance(channel, int):
@@ -128,8 +121,8 @@ class Message():
                     self._data2 = self.type.data
                 else:
                     raise TypeError(
-                        '1st positional argument should not be type {}. Must be NoteOff, NoteOn, PolyphonicAftertouch,'
-                        ' ChanelAftertouch, ControlChange, ProgramChange or PitchWheel'.format(str(type((self.type)))))
+                        "1st positional argument should be from a type listed "
+                        "in types.py (got {} instead)".format(type(self.type)))
 
                 self._status = (self._type << 4) + (self.channel - 1)
 
@@ -137,7 +130,7 @@ class Message():
             raise TypeError('Missing argument to build a Message object (2 positional arguments required)')
 
     def __repr__(self):
-        return "Message({}, {})".format(self.channel, self.type)
+        return "Message({}, {})".format(self.type, self.channel)
 
     @property
     def status(self):
@@ -232,20 +225,25 @@ class Message():
         self.type.data = data
 
 
-class MidiConnector():
-    """Create an interface between the program and the serial port of the machine."""
+class MidiConnector:
+    """Interface object between program and machine's serial port.
+
+    Args:
+    * port (str) – path to the machine's serial interface, eg '/dev/serial0'
+    on a RaspberryPi
+
+    * baudrate (int) – default to 31250, and should not be changed.
+    This is the standard baudrate, used by all MIDI devices.
+
+    * timeout (float, default to None) – if you *don't want* the read() method
+    to block for ever when waiting for a message, use a timeout to set up a
+    maximum duration of blocking. The timeout is only used for reading, not
+    writing.
+    """
 
     def __init__(self, port, baudrate=31250, timeout=None):
         """
-        ``port`` must be string, representing the path used for connecting to the machine's serial interface
-        Example: on Raspberry3, the path to serial port is '/dev/serial0'
 
-        ``baudrate`` is an int set up at 31250 by default and should not be changed. This is the standard
-        baudrate, used by all MIDI devices.
-
-        ``timeout`` default=None. If you *don't want* the MidiConnector.read() method to block for ever if it receives
-        nothing, use this keyword argument to set up a maximum duration of blocking. The timeout is only used for reading,
-        not writing.
         """
 
         if timeout and not (isinstance(timeout, float) or isinstance(timeout, int)):
@@ -254,18 +252,26 @@ class MidiConnector():
         self.timeout = timeout
         self.baudrate = baudrate
         self.port = port
-        self.connector = serial.Serial(port=self.port, baudrate=self.baudrate, timeout=self.timeout)
+        self.connector = serial.Serial(
+            port=self.port, baudrate=self.baudrate, timeout=self.timeout)
+
+
+    def __repr__(self):
+        return "MidiConnector({}, baudrate={}, timeout={})".format(
+            self.port, self.baudrate, self.timeout)
+
 
     def read(self, *channel):
         """
         Return a MIDI message from the bytes it reads.
 
-        If a channel is specified when calling this method, it will return only the message(s) received on this channel.
-        Otherwise, it will read in "omni" mode, returning any MIDI message received.
+        If 'channel' is specified, return only message(s) received on the given
+        channel. Otherwise, read in "omni" mode and return any MIDI message
+        received.
 
-        If a timeout has been specified during instanciation of MidiConnector object, it will return nothing if the timeout
-        is reached before receiving a message. By default, timeout is None, which means that the method will block as long
-        as necessary, until receiving a message.
+        If self.timeout is not None, return nothing if the timeout is reached
+        before receiving a message. By default, self.timeout is None, so
+        self.read() will block as long as necessary, until receiving a message.
         """
         sysEx = False
 
@@ -282,12 +288,15 @@ class MidiConnector():
             channel = channel[0]
 
         message = [None, None, None]
+
         for i in range(3):
             data = int.from_bytes(self.connector.read(1), 'big')
             message[i] = data
             if message[1] is not None:
                 status = message[0] >> 4
-                if status == 12 or status == 13:  # either a PC message or Channel Aftertouch. They carry only 2 bytes, not 3.
+                if status in (12, 13):
+                    # either a PC message or Channel Aftertouch:
+                    # they carry only 2 bytes, not 3
                     break
                 elif status == 15:  # SysEx message
                     sysEx = True
@@ -301,7 +310,10 @@ class MidiConnector():
                     break
 
         if omni or channel == (message[0] & 15) + 1 or sysEx:
-            return Message(status_byte=message[0], data_byte1=message[1], data_byte2=message[2])
+            return Message(
+                status=message[0],
+                first_data=message[1],
+                second_data=message[2])
         else:
             pass
 
@@ -309,10 +321,13 @@ class MidiConnector():
         """
         Send MIDI message, and return the number of bytes transmitted.
 
-        ``message`` must be type midi.Message or will raise a TypeError. This Message object contains the information
-        needed to build the bytes and transmit them, and to know on which channel to send the bytes.
-        ``omni`` (default=False) If set up at True, the method will send the message to every channels (from
-        1 to 16), regardless of the channel specified inside the Message object.
+        Args:
+            * message (type midi.Message). Contains the information needed to
+             build the data bytes to transmit, as well as the channel channel
+             to use.
+             * omni (bool, default=False) if True, the method will send the
+              message to every channels (from 1 to 16), regardless of the
+             channel specified inside the Message object.
         """
         if not isinstance(message, Message):
             raise TypeError("Argument 'message' must be type Message ({} given).".format(str(type(message))))
@@ -336,8 +351,8 @@ class MidiConnector():
                     return len(msg)
 
         else:
-            start = bytes([0xf0]) # Start of SysEx message
-            data1 = bytes([message._data1]) # ID of SysEx
+            start = bytes([0xf0])  # Start of SysEx message
+            data1 = bytes([message._data1])  # ID of SysEx
             msg = [start, data1]
 
             for elmt in message._data2:
