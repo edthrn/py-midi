@@ -1,4 +1,6 @@
 # -*-coding:Utf-8 -*
+from numbers import Number
+
 import serial
 
 from .types import *
@@ -69,80 +71,82 @@ class Message:
             elif self._type == 15:
                 self.type = SysEx(self._data1, self._data2)
             else:
-                raise TypeError(
-                    'Cannot build a MIDI message. Please verify value of status byte (must be greater or equal'
-                    'than 128 (1000 0000) and less or equal than 255 (1111 1111)')
+                raise ValueError(
+                    'Status byte must be greater or equal to 128 (1000 0000) '
+                    'and less or equal  to 255 (1111 1111)')
 
         elif args:
-            if len(args) != 2:
-                raise TypeError("Message.__init__() takes 2 positional arguments,"
-                                "'type' and 'content' ({} given)".format(len(args)))
+            assert len(args) == 2, TypeError(
+                "Message.__init__() takes 2 positional arguments: 'type' and "
+                "'content' ({} given)".format(len(args)))
+
+            channel = args[1]
+
+            assert isinstance(channel, int), TypeError(
+                "2nd positional argument (channel) must be an integer "
+                "({} given)".format(type(channel)))
+            assert (1 <= channel <= 16), ValueError(
+                "2nd argument (channel) is out of range. Must be set from 1 "
+                "to 16 ({} given).".format(channel))
+
+            self.channel = channel
+            self.type = args[0]
+            if isinstance(self.type, NoteOff):
+                self._type = 8
+                self._data1 = self.type.note_number
+                self._data2 = self.type.velocity
+            elif isinstance(self.type, NoteOn):
+                self._type = 9
+                self._data1 = self.type.note_number
+                self._data2 = self.type.velocity
+            elif isinstance(self.type, PolyphonicAftertouch):
+                self._type = 10
+                self._data1 = self.type.note_number
+                self._data2 = self.type.pressure
+            elif isinstance(self.type, ControlChange):
+                self._type = 11
+                self._data1 = self.type.control_number
+                self._data2 = self.type.value
+            elif isinstance(self.type, ProgramChange):
+                self._type = 12
+                self._data1 = self.type.program_number - 1
+            elif isinstance(self.type, ChannelAftertouch):
+                self._type = 13
+                self._data1 = self.type.pressure
+            elif isinstance(self.type, PitchBend):
+                self._type = 14
+                self._data1 = self.type.lsbyte
+                self._data2 = self.type.msbyte
+            elif isinstance(self.type, SysEx):
+                self._type = 15
+                self._data1 = self.type.id
+                self._data2 = self.type.data
             else:
-                channel = args[1]
-                if not isinstance(channel, int):
-                    raise TypeError(
-                        '2nd positional argument (channel) must be an integer ({} given)'.format(str(type(channel))))
-                elif 1 <= channel <= 16:
-                    self.channel = channel
-                else:
-                    raise ValueError(
-                        '2nd argument (channel) is out of range (must be set from 1 to 16, {} given).'.format(channel))
+                raise TypeError(
+                    "1st positional argument should be from a type listed "
+                    "in types.py (got {} instead)".format(type(self.type)))
 
-                self.type = args[0]
-                if isinstance(self.type, NoteOff):
-                    self._type = 8
-                    self._data1 = self.type.note_number
-                    self._data2 = self.type.velocity
-                elif isinstance(self.type, NoteOn):
-                    self._type = 9
-                    self._data1 = self.type.note_number
-                    self._data2 = self.type.velocity
-                elif isinstance(self.type, PolyphonicAftertouch):
-                    self._type = 10
-                    self._data1 = self.type.note_number
-                    self._data2 = self.type.pressure
-                elif isinstance(self.type, ControlChange):
-                    self._type = 11
-                    self._data1 = self.type.control_number
-                    self._data2 = self.type.value
-                elif isinstance(self.type, ProgramChange):
-                    self._type = 12
-                    self._data1 = self.type.program_number - 1
-                elif isinstance(self.type, ChannelAftertouch):
-                    self._type = 13
-                    self._data1 = self.type.pressure
-                elif isinstance(self.type, PitchBend):
-                    self._type = 14
-                    self._data1 = self.type.lsbyte
-                    self._data2 = self.type.msbyte
-                elif isinstance(self.type, SysEx):
-                    self._type = 15
-                    self._data1 = self.type.id
-                    self._data2 = self.type.data
-                else:
-                    raise TypeError(
-                        "1st positional argument should be from a type listed "
-                        "in types.py (got {} instead)".format(type(self.type)))
-
-                self._status = (self._type << 4) + (self.channel - 1)
+            self._status = (self._type << 4) + (self.channel - 1)
 
         else:
-            raise TypeError('Missing argument to build a Message object (2 positional arguments required)')
+            raise TypeError('__init__() missing 2 required positional arguments:'
+                            'type, channel')
 
     def __repr__(self):
         return "Message({}, {})".format(self.type, self.channel)
 
-    @property
-    def status(self):
-        return self._status
+    def __len__(self):
+        return len(self.content)
+
+    def __getitem__(self, index):
+        return self.content[index]
 
     @property
-    def first_data(self):
-        return self._data1
+    def content(self):
+        if self._data2 is None:
+            return [self._status, self._data1]
 
-    @property
-    def second_data(self):
-        return self._data2
+        return [self._status, self._data1, self._data2]
 
     @property
     def velocity(self):
@@ -242,26 +246,17 @@ class MidiConnector:
     """
 
     def __init__(self, port, baudrate=31250, timeout=None):
-        """
-
-        """
-
-        if timeout and not (isinstance(timeout, float) or isinstance(timeout, int)):
-                raise TypeError('Specified timeout must be float or integer ({} given)'.format(type(timeout)))
-
         self.timeout = timeout
         self.baudrate = baudrate
         self.port = port
         self.connector = serial.Serial(
             port=self.port, baudrate=self.baudrate, timeout=self.timeout)
 
-
     def __repr__(self):
         return "MidiConnector({}, baudrate={}, timeout={})".format(
             self.port, self.baudrate, self.timeout)
 
-
-    def read(self, *channel):
+    def read(self, channel=None):
         """
         Return a MIDI message from the bytes it reads.
 
@@ -273,19 +268,19 @@ class MidiConnector:
         before receiving a message. By default, self.timeout is None, so
         self.read() will block as long as necessary, until receiving a message.
         """
-        sysEx = False
+        sysex = False
 
-        if not channel:
+        if channel is None:
             omni = True
-        elif len(channel) != 1:
-            raise ValueError('Only one optional argument max (channel)')
-        elif not isinstance(channel[0], int):
-            raise TypeError('Optional argument (channel) must be an integer ({} given)'.format(str(type(channel[0]))))
-        elif not 1 <= channel[0] <= 16:
-            raise ValueError('Specified channel out of range. Must be set from 1 to 16 ({} given).'.format(channel[0]))
         else:
+            assert isinstance(channel, int), TypeError(
+                "Optional argument 'channel' must be an integer "
+                "({} given)".format(type(channel[0])))
+
+            assert (1 <= channel <= 16), ValueError(
+                "'channel' arg is out of range. Must be set from 1 to 16 "
+                "({} given).".format(channel[0]))
             omni = False
-            channel = channel[0]
 
         message = [None, None, None]
 
@@ -299,17 +294,17 @@ class MidiConnector:
                     # they carry only 2 bytes, not 3
                     break
                 elif status == 15:  # SysEx message
-                    sysEx = True
+                    sysex = True
                     message[2] = []
                     while True:
                         data = int.from_bytes(self.connector.read(1), 'big')
                         if data != 0xf7:
                             message[2].append(data)
-                        else:
+                        else:  # end of SysEx data
                             break
                     break
 
-        if omni or channel == (message[0] & 15) + 1 or sysEx:
+        if omni or (channel == (message[0] & 15) + 1) or sysex:
             return Message(
                 status=message[0],
                 first_data=message[1],
@@ -329,8 +324,10 @@ class MidiConnector:
               message to every channels (from 1 to 16), regardless of the
              channel specified inside the Message object.
         """
-        if not isinstance(message, Message):
-            raise TypeError("Argument 'message' must be type Message ({} given).".format(str(type(message))))
+
+        assert isinstance(message, Message), TypeError(
+            "Argument 'message' must be type Message ({} given).".format(
+                (type(message))))
 
         if message.type != SysEx:
             data1 = bytes([message._data1])
