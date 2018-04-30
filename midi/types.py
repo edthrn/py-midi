@@ -1,6 +1,6 @@
 # -*-coding:Utf-8 -*
 
-class NoteOff():
+class NoteOff:
     """ Creates a MIDI message type Note Off
 
     Two positional arguments are required:
@@ -34,7 +34,7 @@ class NoteOff():
         return "\nType: Note OFF\nNote number: {}\nVelocity: {}\n".format(
             self.note_number, self.velocity)
 
-class NoteOn():
+class NoteOn:
     """ Creates a MIDI message type Note On.
 
     Two positional arguments are required:
@@ -69,7 +69,7 @@ class NoteOn():
         return "\nType: Note ON\nNote number: {}\nVelocity: {}\n".format(
             self.note_number, self.velocity)
 
-class PolyphonicAftertouch():
+class PolyphonicAftertouch:
     """ Creates a MIDI message type Polyphonic Aftertouch.
 
     Takes two positional arguments:
@@ -109,7 +109,7 @@ class PolyphonicAftertouch():
                "Note number: {}\nPressure: {}\n".format(
             self.note_number, self.pressure)
 
-class ChannelAftertouch():
+class ChannelAftertouch:
     """ Creates a MIDI message type Channel Aftertouch.
 
     Takes one positional argument:
@@ -136,7 +136,7 @@ class ChannelAftertouch():
         return "\nType: Channel Aftertouch\nPressure: {}\n".format(
             self.pressure)
 
-class ControlChange():
+class ControlChange:
     """ Creates a MIDI message type Control Change.
 
         Takes two positional arguments:
@@ -166,7 +166,7 @@ class ControlChange():
         return "\nType: Control Change\nControl number: {}\nValue: {}\n".format(
             self.control_number, self.value)
 
-class ProgramChange():
+class ProgramChange:
     """ Creates a MIDI message type Program Change.
 
     Takes one positional argument:
@@ -194,7 +194,7 @@ class ProgramChange():
             self.program_number)
 
 
-class PitchBend():
+class PitchBend:
     """Creates a MIDI message type Pitch Wheel
 
     Takes two positional arguments:
@@ -228,7 +228,7 @@ class PitchBend():
         return "\nType: Pitch bend\nLeast signifant byte: {}\n" \
                "Most significant byte: {}\n".format(self.lsbyte, self.msbyte)
 
-class SysEx():
+class SysEx:
     """Creates a MIDI message type SysEx.
 
     SysEx are used for device-specific data transfer. You can basicaly transfer
