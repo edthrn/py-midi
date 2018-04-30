@@ -1,5 +1,4 @@
 # -*-coding:Utf-8 -*
-from numbers import Number
 
 import serial
 
@@ -31,16 +30,16 @@ class Message:
     >>> msg.control_number
     or
     >>> msg.value
-    (see types.py for more details)
+    (see help(midi.types) for more details)
     """
 
     def __init__(self, *args, **kwargs):
         self.type = None
         self.channel = None
         self._type = None  # 4 bits reprensenting the message type
-        self._status = None  # 1st byte (_type + channel)
-        self._data1 = None  # 2nd byte
-        self._data2 = None  # 3rd byte
+        self._status = None  # 1st byte's value (_type + channel)
+        self._data1 = None  # 2nd byte's value
+        self._data2 = None  # 3rd byte's value
 
         if kwargs:  # for internal use only (when reading message)
             self._data1 = kwargs['first_data']
@@ -119,14 +118,17 @@ class Message:
                 self._data2 = self.type.msbyte
             elif isinstance(self.type, SysEx):
                 self._type = 15
+                self._status = 0xf0
                 self._data1 = self.type.id
                 self._data2 = self.type.data
             else:
                 raise TypeError(
                     "1st positional argument should be from a type listed "
-                    "in types.py (got {} instead)".format(type(self.type)))
+                    "in types.py (got {} instead). See 'help(midi.types)' for"
+                    "a complete list of types".format(type(self.type)))
 
-            self._status = (self._type << 4) + (self.channel - 1)
+            if self._status is None:  # if not SysEx
+                self._status = (self._type << 4) + (self.channel - 1)
 
         else:
             raise TypeError('__init__() missing 2 required positional arguments:'
@@ -143,10 +145,27 @@ class Message:
 
     @property
     def content(self):
-        if self._data2 is None:
+        if isinstance(self.type, SysEx):
+            # Data to transmit are recorded as a list in the SysEx object.
+            # We need to iterate through this list of data to return
+            # a flat list
+            content = [self._status, self._data1]
+
+            for data in self._data2:
+                content.append(data)
+
+            content.append(0xf7)  # End of SysEx message
+
+            return content
+
+        elif self._data2 is None:
             return [self._status, self._data1]
 
         return [self._status, self._data1, self._data2]
+
+    @property
+    def bytes_content(self):
+        return [bytes([c]) for c in self.content]
 
     @property
     def velocity(self):
@@ -234,7 +253,7 @@ class MidiConnector:
 
     Args:
     * port (str) – path to the machine's serial interface, eg '/dev/serial0'
-    on a RaspberryPi
+    on a RaspberryPi3
 
     * baudrate (int) – default to 31250, and should not be changed.
     This is the standard baudrate, used by all MIDI devices.
@@ -309,55 +328,21 @@ class MidiConnector:
                 status=message[0],
                 first_data=message[1],
                 second_data=message[2])
-        else:
-            pass
 
-    def write(self, message, omni=False):
+
+    def write(self, message):
         """
         Send MIDI message, and return the number of bytes transmitted.
 
         Args:
-            * message (type midi.Message). Contains the information needed to
-             build the data bytes to transmit, as well as the channel channel
-             to use.
-             * omni (bool, default=False) if True, the method will send the
-              message to every channels (from 1 to 16), regardless of the
-             channel specified inside the Message object.
+            * message (type midi.Message)
         """
 
         assert isinstance(message, Message), TypeError(
             "Argument 'message' must be type Message ({} given).".format(
                 (type(message))))
 
-        if message.type != SysEx:
-            data1 = bytes([message._data1])
-            data2 = bytes([message._data2]) if message._data2 else None
-            if not omni:
-                status = bytes([message._status])
-                msg = [status, data1, data2] if data2 else [status, data1]
-                for byte in msg:
-                    self.connector.write(byte)
-                return len(msg)
+        for byte in message.bytes_content:
+            self.connector.write(byte)
 
-            else:  # send MIDI message on every channels
-                for i in range(16):
-                    status = bytes([(message._type << 4) + i])
-                    msg = [status, data1, data2] if data2 else [status, data1]
-                    for byte in msg:
-                        self.connector.write(byte)
-                    return len(msg)
-
-        else:
-            start = bytes([0xf0])  # Start of SysEx message
-            data1 = bytes([message._data1])  # ID of SysEx
-            msg = [start, data1]
-
-            for elmt in message._data2:
-                data = bytes([elmt])
-                msg.append(data)
-
-            end = bytes([0xf7]) # End of SysEx message
-            msg.append(end)
-            for byte in msg:
-                self.connector.write(byte)
-            return len(msg)
+        return len(message)
