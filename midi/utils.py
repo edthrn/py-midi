@@ -49,9 +49,9 @@ class MessageBuilder:
 
         midi_type = NUMBERS_TYPE[self.type_number]
         if self.data2 is not None:
-            message_type = midi_type(self.data1, self.data2)
+            message_type = midi_type(self.data1, self.data2, internal=True)
         else:
-            message_type = midi_type(self.data1)
+            message_type = midi_type(self.data1, internal=True)
 
         if isinstance(message_type, NoteOn) and message_type.data2 == 0:
             # NoteOn with velocity = 0 are in fact NoteOff

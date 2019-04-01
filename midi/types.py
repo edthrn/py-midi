@@ -9,35 +9,52 @@ class MidiMessageType:
         instance = super().__new__(cls)
         return instance
 
-    def __init__(self, data1, data2=None):
-        assert 0 <= data1 <= 127
-        if isinstance(data2, int):
-            assert 0 <= data2 <= 127
-        elif isinstance(data2, list):  # SysEx
-            assert all(0 <= data <= 255 for data in data2)
-
+    def __init__(self, data1, data2=None, internal=False):
+        self._internal = internal
         self._type = self.__class__.__name__
         self._build(data1, data2)
-        self.data1 = data1  # universal alias for 1st byte
-        self.data2 = data2  # universal alias for 2nd byte (or bytes, if SysEx)
+
+        if self._type == 'ProgramChange' and not internal:
+            # MIDI standard numbers the PCs from 1 to 128.
+            # Therefore, we need to decrement the number in order
+            # to have the actual 7 bits value. When the message
+            # is built with internal builder – ie from connector.read() –
+            # the actual number is already correct.
+            assert 1 <= data1 <= 128
+            self._data1 = data1 - 1
+        else:
+            assert 0 <= data1 <= 127
+            self._data1 = data1
+
+        if data2 is not None:
+            if self._type == 'SysEx':
+                assert all(0 <= data <= 255 for data in data2)
+            else:
+                assert 0 <= data2 <= 127
+        self._data2 = data2
 
     def _build(self, *args):
         from .utils import TYPES_ATTRIBUTES
         for index, attr in enumerate(TYPES_ATTRIBUTES[self.__class__]):
-            if self.__class__ == ProgramChange:
-                # The `program_number` attribute must be rendered
-                # from 1 to 128.
-                setattr(self, attr, args[index] + 1)
-            else:
-                setattr(self, attr, args[index])
+            setattr(self, attr, args[index])
 
     def __repr__(self):
         name = self.__class__.__name__
-        if self.data2 is not None:
-            return '{}({}, {})'.format(name, self.data1, self.data2)
+        if self._data2 is not None:
+            return '{}({}, {})'.format(name, self._data1, self._data2)
         elif name == 'ProgramChange':
-            return '{}({})'.format(name, self.data1 + 1)
-        return '{}({})'.format(name, self.data1)
+            # Increment data_1 to have the MIDI program number, from
+            # 1 to 128.
+            return '{}({})'.format(name, self._data1 + 1)
+        return '{}({})'.format(name, self._data1)
+
+    @property
+    def data1(self):
+        return self._data1
+
+    @property
+    def data2(self):
+        return self._data2
 
 
 class NoteOff(MidiMessageType):
@@ -68,13 +85,6 @@ class ControlChange(MidiMessageType):
 
 class ProgramChange(MidiMessageType):
     """MIDI message type Program Change."""
-    def __init__(self, program_number):
-        assert 1 <= program_number <= 128, \
-            'Program Number must be within [1, 128]'
-        # MIDI standard numbers the PCs from 1 to 128.
-        # Therefore, we need to decrement the number in order to have
-        # the actual 7 bits value.
-        super().__init__(program_number - 1)
 
 
 class PitchBend(MidiMessageType):
