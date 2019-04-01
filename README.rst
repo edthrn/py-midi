@@ -1,26 +1,17 @@
-=================
-PY-MIDI LIBRARY
-=================
+py-midi
+=======
 
-**A library for communicating via MIDI standard using Python3**
+**Simply send and receive MIDI messages using Python3.**
 
-*Warning: To use with Python3 only*. The library doesn't work with Python2.
+This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY.
 
-*Published under GNU License*
+**Warning: To use with Python3 only**. The library doesn't work with Python2.
 
-**This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY**
+1. Purpose
+-----------
 
-Do not hesitate to use Issues if necessary.
-
-ed [at] edtheron [dot] me
-
-.. sectum::
-.. contents:: Table of Contents
-
-1) PURPOSE
-***********
 This Python3 library has been made in order to communicate easily with any MIDI devices. The only requirement is to have a serial
-interface on your computer. It's on this interface that you must connect MIDI cables to establish a communication between your
+interface on your machine. It's on this interface that you must connect MIDI cables to establish a communication between your
 machine and the MIDI devices.
 
 The py-midi library allows users to build and/or read MIDI messages without having to worry on formating them before sending and/or after receiving.
@@ -28,154 +19,106 @@ The py-midi library allows users to build and/or read MIDI messages without havi
 MIDI (Musical Instrument Digital Interface) is a standard used for making easy for instruments, computers and other electronic devices
 to communicate.
 
-This library is able to deal with any kind of MIDI messages, on any of the 16 possible channels.
+This library is able to deal with any kind of MIDI messages, on any of the 16 possible channels (for channel-type messages) or with any kind of SysEx messages.
 
 For more details on the MIDI standard, see Wikipedia MIDI page https://en.wikipedia.org/wiki/MIDI
 
-2) INSTALLATION
-***************
-You can install easily the package using Python Package Index. You just have to run the following command::
+2. Installation
+---------------
+Easily install the package using `pip`::
 
-	$ python3 -m pip install py-midi
+	$ pip3 install py-midi
 
-or::
+Then you can import the package to your program:
 
-	$ sudo pip3 install py-midi
+.. code-block:: python
 
-Then you can import the package to your program::
-
-	import midi
-
-3) CONTENT OF THE LIBRARY
-*************************
-A) Class MidiConnector
-======================
-Creates an interface between your program and the serial port of the machine. You instanciate by giving the path to the serial port. Example::
-
-	c = MidiConnector('/dev/serial0') # should be the path used on RaspberryPi 3
-
-If you *don't want* the MidiConnector.read() method to block for ever if it receives nothing, use the keyword argument **timeout** to set up a maximum duration (seconds) of blocking::
-
-    c = MidiConnector('/dev/serial0', timeout=5)
-
-*(Note: The timeout is only used for reading, not for writing)*
-
-For reading messages received via MIDI IN, use the method read() as follow::
-
-    msg = c.read()
-
-For sending messages via MIDI OUT::
-
-    c.write(msg)
-
-By default, reading is done in **OMNI** mode, whereas writing is specific to a channel. However, you can override the default
-behavior. For further details, run::
-
-    help(MidiConnector)
+	>>> import midi
 
 
-B) Classes for different type of MIDI messages
-==============================================
-8 types of MIDI message (including SysEx) are managed by the package.
-Here are the exhaustive list, as well as how to instanciate them.
-*Note: none of the arguments passed to instanciate a message type must exceed 127 (255 if SysEx data), or be negative*
+3. Getting started
+-------------------
 
-* NoteOff(note_number, velocity)
-* NoteOn(note_number, velocity)
-* PolyphonicAftertouch(note_number, pressure)
-* ChannelAftertouch(pressure)
-* ControlChange(control_number, value)
-* ProgramChange(program_number)
-* PitchWheel(least_signifcant_byte, most_significant_byte)
-* SysEx(manufacturer_id, data1, data2..., data-N)
+Creates an interface between your program and the serial port of the machine. You instanciate by giving the path to the serial port. Example:
 
-C) Class Message
-================
-Represents a MIDI message, with all its properties:
+.. code-block:: python
 
-+--------------+------------------------------------------------------------+
-| Attribute    |  Represents                                                |
-+==============+============================================================+
-| type         | The type of MIDI message: ControlChange, ProgramChange,    |
-|              | NoteOff, NoteOn, etc...                                    |
-+--------------+------------------------------------------------------------+
-| channel      | The channel used to send or the channel on which it has    |
-|              | been sent (from 1 to 16)                                   |
-+--------------+------------------------------------------------------------+
-| status       | The value of first message byte                            |
-|              |                                                            |
-+--------------+------------------------------------------------------------+
-| data1        | The value of second message byte                           |
-|              |                                                            |
-+--------------+------------------------------------------------------------+
-| data2        | The value of third message byte                            |
-|              | *Note: some types carry only 2 bytes*                      |
-+--------------+------------------------------------------------------------+
+  >>> from midi import MidiConnector
+  >>> conn = MidiConnector('/dev/serial0')  # path to use on RaspberryPi 3
 
-If you want to build a MIDI message, you need to use positionnal arguments, first the type, then the channel::
+If you don't want the ``MidiConnector.read()`` method to block forever if it receives nothing, use the keyword argument **timeout** to set up a maximum duration (seconds) of blocking:
 
-    note_on = NoteOn(68, 102)
-    channel = 1
-    msg = Message(note_on, channel)
+.. code-block:: python
 
-Then you can access other properties, e.g. for a message type NoteOn::
-    >>> msg.velocity
-    102
-    >>> hex(msg.status) # The first byte of a NoteOn sent on channel 1 will be 1001 0000
-    '0x90'
+    >>> conn = MidiConnector('/dev/serial0', timeout=5)
 
+The ``timeout`` kwarg is only used for reading, not for writing.
 
-4) EXAMPLES
-*************
-Before doing anything, import the package to your program::
+To send a MIDI message, you first need to instantiate a ``MidiMessageType``. There are 8 differents types of MIDI message. Here they are, with there instanciation parameters:
 
-	import midi
+* ``NoteOff(note_number, velocity)``
+* ``NoteOn(note_number, velocity)``
+* ``PolyphonicAftertouch(note_number, pressure)``
+* ``ChannelAftertouch(pressure)``
+* ``ControlChange(control_number, value)``
+* ``ProgramChange(program_number)``
+* ``PitchWheel(lsbyte, msbyte)``
+* ``SysEx(manufacturer_id, data1, data2..., dataN)``
 
-Then depending on what you need to do, follow these examples.
+**NOTE**
+All instanciation parameters must be included within [0, 127] except for ``SysEx`` data (0 to 255) or ``ProgramChange``' number (1 to 128).
 
-A) Reading MIDI messages (via MIDI IN device)
-=============================================
+Example: create a type ``ControlChange``:
 
-First, I need to set up a connector object. It requires at least one argument: the port used for the serie interface::
+.. code-block:: python
 
-	c = midi.Connector('path/to/serial/port')
+    >>> from midi import ControlChange
+    >>> cc = ControlChange(100, 127)
 
-Super easy. Now I just have to read through it::
+Now build the full message, providing a channel:
 
-	msgIn = c.read() # return any MIDI messages received
+.. code-block:: python
 
-Note that this will block until a MIDI message is received (thus it can block for ever if your loop is not properly set up)
-To set a timeout, you need to specify it when building the connector::
+    >>> from midi import Message
+    >>> msg = Message(cc, channel=1)
 
-	c_timeout = midi.Connector('path/to/serial/port', timeout=10)
-	# will block for max 10 sec when reading, or until a message is received 
+You can access the attributes of your message directly:
 
-You can also specify a channel for listening::
+.. code-block:: python
 
-	msgInChannel8 = c.read(8) # return MIDI messages received on channel 8 only. Ignore the rest
+    >>> msg.control_number
+    100
+    >>> msg.value
+    127
 
-B) Sending MIDI messages (via MIDI OUT device)
-==============================================
+Send the message to MIDI OUT, using the connector:
 
-First you need to create the type of message you need to send (either a Control Change, a Note On, etc...)
+.. code-block:: python
 
-Let's say I want to create a Control Change that sets the value 127 to the control number 12::
+    >>> conn.write(msg)  # returns the number of bytes sent
+    3
 
-	cc = midi.ControlChange(12, 127)
+-------
 
-I want to send the message on channel 15::
+For reading messages received via MIDI IN, use the method ``read()`` as follow: (here, we )
 
-	channel = 15
+.. code-block:: python
 
-Now I have everything I need to build up a MIDI message::
+    >>> msg = conn.read()  # read on ANY channel by default
+    >>> # Pretend to receive a ProgramChange message, on channel 2
+    >>> msg
+    Message(ProgramChange(35), 2)
+    >>> msg.channel
+    2
+    >>> msg.type
+    ProgramChange(35)
+    >>> msg.program_number
+    35
 
-	msgOut = midi.Message(cc, channel)
+By default, the connector's ``read()`` method reads in OMNI mode. To specify a channel, add the channel number as a parameter:
 
-I create the connector for sending the message (of course!)::
+.. code-block:: python
 
-	c = midi.Connector('path/to/serial/port')
-	c.write(msgOut)
+    >>> msg = conn.read(8)  # read only on channel 8, ignore the rest
 
-Do not hesitate to read helpers for further details, for example::
-
-	>>> help(midi.MidiConnector)
+As per the MIDI standard, there are 16 channels you can read from, numbered from 1 to 16.
