@@ -34,7 +34,7 @@ def test_write(mock_serial, message):
 
 
 @patch('midi.midi.Serial', autospec=True)
-def test_read_standard(mock_serial, midi_bytes):
+def test_read_standard(mock_serial):
     """3 bytes expected"""
     reader = Mock()
     reader.side_effect = [bytes([value]) for value in [128, 35, 65]]
@@ -47,32 +47,3 @@ def test_read_standard(mock_serial, midi_bytes):
     assert message.channel == 1
     assert message.note_number == 35
     assert message.velocity == 65
-#
-# @patch('midi.midi.Serial', autospec=True)
-# @patch('midi.midi.Serial.read', autospec=True)
-# def test_read_stdard(mock_serial, mock_read):
-#     """3 bytes expected"""
-#     conn = MidiConnector('/path/to/serial/port')
-#
-#     mock_read.side_effect = [bytes([value]) for value in [128, 12, 12]]
-#
-#     message = conn.read()
-#     assert True
-#
-# def test_read_wrong_channel(mock_read_method):
-#     """3 bytes expected"""
-#     connector.read.return_value = midi_bytes
-#
-#     message = connector.read()
-#
-#     assert message is None
-#
-# def test_read_pc(mock_read_method):
-#     """2 bytes expected"""
-#     connector.read.return_value = midi_bytes
-#     connector.read()
-#
-# def test_read_sysex(mock_read_method):
-#     """n bytes expected"""
-#     connector.read.return_value = midi_bytes
-#     connector.read()

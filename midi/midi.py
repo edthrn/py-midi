@@ -176,6 +176,8 @@ class MidiConnector:
         sysex = False
         for i in range(len(msg)):
             raw_byte = self.__read_byte()
+            if not raw_byte:
+                return
             byte_value = ord(raw_byte)
             msg[i] = byte_value
             if msg[1] is not None:
