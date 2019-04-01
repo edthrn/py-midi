@@ -116,6 +116,10 @@ class Message:
     def bytes_content(self):
         return [bytes([c]) for c in self.content]
 
+    @property
+    def status(self):
+        return self.content[0]
+
 
 class MidiConnector:
     """Interface object between program and machine's serial port.
