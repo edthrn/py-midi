@@ -39,7 +39,7 @@ class Message:
 
     You can also access the attributes of the different message types, eg, for
     ControlChange, you can call
-    >>> msg.control_number
+    >>> msg.velocity
     or
     >>> msg.value
     (see help(midi.types) for more details)
@@ -57,7 +57,7 @@ class Message:
         self._link_attributes()
 
     def __repr__(self):
-        return "Message(type={}, channel={})".format(self.type, self.channel)
+        return "Message({}, channel={})".format(self.type, self.channel)
 
     def __len__(self):
         return len(self.content)
