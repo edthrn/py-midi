@@ -14,7 +14,7 @@ with open(path.join(here, 'README.rst'), encoding='utf-8') as f:
 
 setup(
     name='py-midi',
-    version='1.2.5',
+    version='2.0',
     description='A package for sending and receiving MIDI messages easily.',
     long_description=long_description,
     url='https://github.com/edouardtheron/py-midi',
