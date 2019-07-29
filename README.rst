@@ -100,7 +100,7 @@ Send the message to MIDI OUT, using the connector:
 
 -------
 
-For reading messages received via MIDI IN, use the method ``read()`` as follow: (here, we )
+For reading messages received via MIDI IN, use the method ``read()`` as follow:
 
 .. code-block:: python
 
