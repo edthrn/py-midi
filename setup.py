@@ -17,9 +17,9 @@ setup(
     version='2.0.1',
     description='A package for sending and receiving MIDI messages easily.',
     long_description=long_description,
-    url='https://github.com/edouardtheron/py-midi',
-    author='Edouard Theron',
-    author_email='edouard@edtheron.me',
+    url='https://github.com/edthrn/py-midi',
+    author='ed',
+    author_email='edtheron@hey.com',
     license='GNU',
     classifiers=[
         'Development Status :: 4 - Beta',
